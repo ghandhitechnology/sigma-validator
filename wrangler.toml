@@ -1,0 +1,6 @@
+name = "sigma-validator"
+compatibility_date = "2024-12-01"
+pages_build_output_dir = "public"
+
+[vars]
+# DEEPSEEK_API_KEY is set via `wrangler pages secret put DEEPSEEK_API_KEY`

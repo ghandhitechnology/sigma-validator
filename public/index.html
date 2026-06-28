@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>SIGMA — Startup Idea Validator</title>
+<meta name="description" content="AI가 당신의 창업 아이디어를 7개 축으로 분해하여 점검합니다.">
+<meta name="author" content="Andy Ha">
+<meta property="og:title" content="SIGMA — Startup Idea Validator">
+<meta property="og:description" content="7축 분석으로 창업 아이디어의 진실을 확인하세요.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔷</text></svg>">
+<style>
+/* ─── Reset ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{min-height:100vh;overflow-x:hidden}
+
+/* ─── Design Tokens ─── */
+:root{
+  --bg:#0a0a0f;
+  --surface:#131318;
+  --surface-2:#1a1a23;
+  --border:#2a2a35;
+  --border-lit:#3a3a4a;
+  --text:#f0f0f5;
+  --text-dim:#9090a0;
+  --text-faint:#585868;
+  --accent:#7c5cff;
+  --accent-2:#a78bfa;
+  --gold:#fbbf24;
+  --red:#ef4444;
+  --green:#22c55e;
+  --amber:#f59e0b;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+  --shadow-lg:0 24px 64px rgba(0,0,0,.5);
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','Pretendard','Apple SD Gothic Neo',sans-serif;
+  --mono:'SF Mono','Fira Code',ui-monospace,monospace;
+}
+
+/* ─── Base ─── */
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  letter-spacing:-.01em;
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:'cv11','ss01';
+}
+
+/* ─── Background ambient ─── */
+.ambient{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(124,92,255,.12),transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 100%,rgba(251,191,36,.06),transparent 60%),
+    radial-gradient(ellipse 40% 40% at 10% 50%,rgba(124,92,255,.04),transparent 60%);
+}
+.ambient::after{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.015) 1px,transparent 0);
+  background-size:40px 40px;
+}
+
+/* ─── Container ─── */
+.wrap{
+  position:relative;z-index:1;
+  max-width:960px;margin:0 auto;
+  padding:0 20px;
+}
+
+/* ─── Header ─── */
+header{padding:80px 0 40px;text-align:center}
+.logo{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--text-dim);margin-bottom:24px;
+}
+.logo .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 12px var(--accent);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+h1{
+  font-size:clamp(2.5rem,7vw,4rem);
+  font-weight:700;letter-spacing:-.04em;line-height:1.05;
+  margin-bottom:16px;
+}
+h1 .gradient{
+  background:linear-gradient(135deg,var(--accent),var(--gold) 80%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.tagline{
+  font-size:clamp(1rem,2.5vw,1.25rem);
+  color:var(--text-dim);max-width:520px;margin:0 auto;
+  letter-spacing:-.01em;
+}
+
+/* ─── Input Section ─── */
+.section-input{padding:40px 0 20px}
+.input-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px;
+  box-shadow:var(--shadow);
+  transition:border-color .3s;
+}
+.input-card:focus-within{border-color:var(--accent)}
+.input-card label{
+  display:block;font-size:13px;font-weight:600;
+  color:var(--text-dim);margin-bottom:10px;letter-spacing:.02em;
+}
+textarea#idea{
+  width:100%;min-height:140px;resize:vertical;
+  background:transparent;border:none;outline:none;
+  color:var(--text);font-family:var(--font);
+  font-size:1.05rem;line-height:1.6;letter-spacing:-.01em;
+}
+textarea#idea::placeholder{color:var(--text-faint)}
+textarea#idea:focus{outline:none}
+
+/* ─── Button ─── */
+.btn-eval{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:16px 24px;margin-top:20px;
+  background:linear-gradient(135deg,var(--accent),#6d4df0);
+  color:#fff;font-family:var(--font);font-size:1rem;font-weight:600;
+  letter-spacing:.01em;border:none;border-radius:var(--radius-sm);
+  cursor:pointer;transition:transform .15s,box-shadow .3s;
+  box-shadow:0 4px 16px rgba(124,92,255,.3);
+}
+.btn-eval:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(124,92,255,.4)}
+.btn-eval:active{transform:translateY(0)}
+.btn-eval:disabled{
+  background:var(--surface-2);color:var(--text-faint);
+  cursor:not-allowed;box-shadow:none;transform:none;
+}
+.btn-eval .spinner{
+  width:18px;height:18px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .6s linear infinite;display:none;
+}
+.btn-eval.loading .spinner{display:inline-block}
+.btn-eval.loading .btn-text{opacity:.7}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── Example chips ─── */
+.examples{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{
+  padding:7px 14px;font-size:.85rem;color:var(--text-dim);
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:20px;cursor:pointer;transition:all .2s;
+}
+.chip:hover{border-color:var(--accent);color:var(--text)}
+
+/* ─── Results ─── */
+.section-results{padding:20px 0 60px;display:none}
+.section-results.show{display:block;animation:fadeIn .6s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── Score Circle ─── */
+.score-hero{
+  display:flex;align-items:center;gap:32px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);
+  margin-bottom:24px;
+}
+.score-ring{flex-shrink:0;position:relative;width:120px;height:120px}
+.score-ring svg{transform:rotate(-90deg);width:120px;height:120px}
+.score-ring .track{stroke:var(--border);fill:none;stroke-width:6}
+.score-ring .fill{
+  stroke:url(#grad);fill:none;stroke-width:6;stroke-linecap:round;
+  transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);
+}
+.score-ring .num{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.score-ring .num .val{font-size:2.2rem;font-weight:700;letter-spacing:-.04em}
+.score-ring .num .label{font-size:.7rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:.15em}
+.score-meta{flex:1}
+.score-meta h2{font-size:1.5rem;font-weight:600;margin-bottom:6px;letter-spacing:-.02em}
+.score-meta .verdict{
+  display:inline-block;padding:4px 12px;border-radius:6px;
+  font-size:.85rem;font-weight:600;letter-spacing:.02em;margin-bottom:8px;
+}
+.verdict.green{background:rgba(34,197,94,.15);color:var(--green)}
+.verdict.amber{background:rgba(245,158,11,.15);color:var(--amber)}
+.verdict.red{background:rgba(239,68,68,.15);color:var(--red)}
+.score-meta p{font-size:.9rem;color:var(--text-dim);line-height:1.5}
+
+/* ─── Radar Chart ─── */
+.radar-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);
+  margin-bottom:24px;text-align:center;
+}
+.radar-card h3{font-size:1.1rem;font-weight:600;margin-bottom:20px;letter-spacing:-.01em}
+canvas#radar{max-width:400px;margin:0 auto;display:block}
+
+/* ─── Axis Breakdown ─── */
+.axes{display:grid;gap:16px;margin-bottom:24px}
+.axis-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);
+  transition:border-color .3s;
+}
+.axis-card:hover{border-color:var(--border-lit)}
+.axis-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.axis-icon{
+  width:36px;height:36px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:10px;font-size:1.1rem;
+  background:var(--surface-2);border:1px solid var(--border);
+}
+.axis-title{flex:1}
+.axis-title h4{font-size:1rem;font-weight:600;letter-spacing:-.01em}
+.axis-title .sub{font-size:.8rem;color:var(--text-faint)}
+.axis-score{
+  font-size:1.4rem;font-weight:700;letter-spacing:-.03em;
+  min-width:40px;text-align:right;
+}
+.bar-track{
+  height:5px;background:var(--surface-2);border-radius:3px;
+  overflow:hidden;margin-bottom:14px;
+}
+.bar-fill{
+  height:100%;border-radius:3px;
+  transition:width 1s cubic-bezier(.4,0,.2,1);
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+}
+.axis-body{font-size:.92rem;color:var(--text-dim);line-height:1.65}
+.axis-body strong{color:var(--text);font-weight:500}
+
+/* ─── Slops ─── */
+.slops-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);
+  margin-bottom:24px;
+}
+.slops-card h3{
+  font-size:1.1rem;font-weight:600;margin-bottom:6px;
+  display:flex;align-items:center;gap:8px;
+}
+.slops-card .desc{font-size:.85rem;color:var(--text-faint);margin-bottom:20px}
+.slops-list{display:flex;flex-direction:column;gap:12px}
+.slop-item{
+  display:flex;gap:12px;padding:16px;
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+}
+.slop-tag{
+  flex-shrink:0;padding:3px 10px;border-radius:6px;
+  font-size:.75rem;font-weight:600;letter-spacing:.03em;
+  white-space:nowrap;
+}
+.slop-tag.fatal{background:rgba(239,68,68,.15);color:var(--red)}
+.slop-tag.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.slop-tag.minor{background:rgba(124,92,255,.15);color:var(--accent-2)}
+.slop-text{font-size:.88rem;color:var(--text-dim);line-height:1.55}
+.slop-text strong{color:var(--text);font-weight:500}
+
+/* ─── Raw JSON ─── */
+.raw-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);
+}
+.raw-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;cursor:pointer;user-select:none;
+}
+.raw-header h3{font-size:.95rem;font-weight:600;color:var(--text-dim)}
+.raw-toggle{font-size:1.2rem;color:var(--text-faint);transition:transform .3s}
+.raw-card.open .raw-toggle{transform:rotate(180deg)}
+.raw-body{
+  max-height:0;overflow:hidden;transition:max-height .4s ease;
+  background:var(--bg);
+}
+.raw-card.open .raw-body{max-height:600px;overflow-y:auto}
+.raw-body pre{
+  padding:20px;font-family:var(--mono);
+  font-size:.8rem;color:var(--text-dim);line-height:1.5;
+  white-space:pre-wrap;word-break:break-all;
+}
+
+/* ─── Footer ─── */
+footer{
+  padding:40px 0 60px;text-align:center;
+  font-size:.8rem;color:var(--text-faint);letter-spacing:.02em;
+}
+footer a{color:var(--text-dim);text-decoration:none;border-bottom:1px solid var(--border)}
+footer a:hover{border-color:var(--accent)}
+
+/* ─── Error ─── */
+.error-msg{
+  display:none;padding:14px 18px;margin-top:16px;
+  background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
+  border-radius:var(--radius-sm);color:var(--red);font-size:.9rem;
+}
+
+/* ─── Mobile ─── */
+@media(max-width:600px){
+  header{padding:60px 0 30px}
+  .score-hero{flex-direction:column;align-items:center;text-align:center;gap:20px}
+  .score-meta{text-align:center}
+  .axis-card{padding:20px}
+  .radar-card{padding:20px}
+  canvas#radar{max-width:300px}
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-lit)}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<div class="wrap">
+  <header>
+    <div class="logo"><span class="dot"></span> SIGMA</div>
+    <h1>창업 아이디어, <span class="gradient">진실을 검증하세요</span></h1>
+    <p class="tagline">AI가 7개 축으로 당신의 아이디어를 분해하고, 숨겨진 함정을 들춰냅니다.</p>
+  </header>
+
+  <section class="section-input">
+    <div class="input-card">
+      <label for="idea">아이디어를 자유롭게 붙여넣으세요</label>
+      <textarea id="idea" placeholder="예: 대학생을 위한 AI 기반 식단 추천 앱. 사용자가 냉장고 사진을 찍으면 AI가 남은 재료로 만들 수 있는 요리를 추천하고, 부족한 재료는 배달앱과 연동하여 주문합니다. 수익 모델은 배달앱 제휴 커미션입니다."></textarea>
+      <button class="btn-eval" id="btnEval">
+        <span class="spinner"></span>
+        <span class="btn-text">검증 시작</span>
+      </button>
+      <div class="examples">
+        <span class="chip" onclick="loadExample(0)">AI 식단 추천 앱</span>
+        <span class="chip" onclick="loadExample(1)">Z세대용 중고 거래 플랫폼</span>
+        <span class="chip" onclick="loadExample(2)">병원 예약 간소화 서비스</span>
+      </div>
+    </div>
+    <div class="error-msg" id="errMsg"></div>
+  </section>
+
+  <section class="section-results" id="results">
+    <!-- Score Hero -->
+    <div class="score-hero">
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#7c5cff"/>
+              <stop offset="100%" stop-color="#fbbf24"/>
+            </linearGradient>
+          </defs>
+          <circle class="track" cx="60" cy="60" r="52"/>
+          <circle class="fill" id="ringFill" cx="60" cy="60" r="52"
+            stroke-dasharray="327" stroke-dashoffset="327"/>
+        </svg>
+        <div class="num">
+          <span class="val" id="scoreVal">—</span>
+          <span class="label">/ 100</span>
+        </div>
+      </div>
+      <div class="score-meta">
+        <h2 id="verdictTitle">분석 대기 중</h2>
+        <span class="verdict" id="verdictBadge">—</span>
+        <p id="verdictDesc"></p>
+      </div>
+    </div>
+
+    <!-- Radar Chart -->
+    <div class="radar-card">
+      <h3>7축 분석</h3>
+      <canvas id="radar" width="400" height="400"></canvas>
+    </div>
+
+    <!-- Axis Breakdown -->
+    <div class="axes" id="axes"></div>
+
+    <!-- Slops -->
+    <div class="slops-card" id="slopsCard" style="display:none">
+      <h3>⚠️ 발견된 함정 (Slops)</h3>
+      <p class="desc">아이디어에 숨겨진 논리적 오류, 과장, 전제 조건의 빈틈을 가차 없이 지적합니다.</p>
+      <div class="slops-list" id="slopsList"></div>
+    </div>
+
+    <!-- Raw JSON -->
+    <div class="raw-card" id="rawCard">
+      <div class="raw-header" onclick="document.getElementById('rawCard').classList.toggle('open')">
+        <h3>원본 분석 데이터 (JSON)</h3>
+        <span class="raw-toggle">⌄</span>
+      </div>
+      <div class="raw-body"><pre id="rawJson"></pre></div>
+    </div>
+  </section>
+
+  <footer>
+    SIGMA v2 · built by <a href="https://github.com/ghandhitechnology">Andy Ha</a> · powered by DeepSeek V4
+  </footer>
+</div>
+
+<script>
+const EXAMPLES = [
+  "대학생을 위한 AI 기반 식단 추천 앱. 냉장고 사진을 찍으면 AI가 남은 재료로 만들 수 있는 요리를 추천하고, 부족한 재료는 배달앱과 연동하여 자동 주문합니다. 수익 모델은 배달앱 제휴 커미션입니다.",
+  "Z세대를 위한 중고 거래 플랫폼. 당근마켓과 달리 인증된 Z세대만 가입 가능하고, AI가 가격을 자동 평가하며, 거래 이력을 블록체인으로 관리합니다. 수수료 3%를收取합니다.",
+  "병원 예약 간소화 서비스. 모든 병원의 예약 시스템을 하나의 앱으로 통합하고, 대기 시간을 실시간으로 보여주며, AI가 가장 빠른 예약을 자동으로 잡아줍니다. 병원당 월 정기 결제 모델입니다."
+];
+
+function loadExample(i){document.getElementById('idea').value=EXAMPLES[i]}
+
+// ─── Eval ───
+const btn=document.getElementById('btnEval');
+const ideaEl=document.getElementById('idea');
+const resultsEl=document.getElementById('results');
+const errEl=document.getElementById('errMsg');
+
+btn.addEventListener('click',async()=>{
+  const idea=ideaEl.value.trim();
+  if(!idea){errEl.textContent='아이디어를 입력하세요.';errEl.style.display='block';return}
+  errEl.style.display='none';
+  btn.classList.add('loading');btn.disabled=true;
+  btn.querySelector('.btn-text').textContent='분석 중...';
+
+  try{
+    const res=await fetch('/api/evaluate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({idea})
+    });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    renderResults(data);
+  }catch(e){
+    errEl.textContent='분석 중 오류가 발생했습니다: '+e.message;
+    errEl.style.display='block';
+  }finally{
+    btn.classList.remove('loading');btn.disabled=false;
+    btn.querySelector('.btn-text').textContent='검증 시작';
+  }
+});
+
+function renderResults(data){
+  resultsEl.classList.add('show');
+  resultsEl.scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Score ring
+  const score=data.overall_score||0;
+  const ringFill=document.getElementById('ringFill');
+  const circumference=2*Math.PI*52;
+  ringFill.setAttribute('stroke-dasharray',circumference);
+  ringFill.setAttribute('stroke-dashoffset',circumference*(1-score/100));
+  animateNumber('scoreVal',0,score,1200);
+
+  // Verdict
+  const vt=document.getElementById('verdictTitle');
+  const vb=document.getElementById('verdictBadge');
+  const vd=document.getElementById('verdictDesc');
+  let verdict,cls;
+  if(score>=70){verdict='검증 통과';cls='green'}
+  else if(score>=45){verdict='주의 필요';cls='amber'}
+  else{verdict='재고 필요';cls='red'}
+  vt.textContent=verdict;
+  vb.textContent=verdict;vb.className='verdict '+cls;
+  vd.textContent=data.summary||'';
+
+  // Radar
+  drawRadar(data.axes||[]);
+
+  // Axes
+  const axesEl=document.getElementById('axes');
+  axesEl.innerHTML='';
+  (data.axes||[]).forEach((ax,i)=>{
+    const scoreColor=ax.score>=70?'var(--green)':ax.score>=45?'var(--amber)':'var(--red)';
+    const card=document.createElement('div');
+    card.className='axis-card';
+    card.innerHTML=`
+      <div class="axis-header">
+        <div class="axis-icon">${AXIS_ICONS[i]||'◆'}</div>
+        <div class="axis-title">
+          <h4>${ax.name}</h4>
+          <div class="sub">${ax.question}</div>
+        </div>
+        <div class="axis-score" style="color:${scoreColor}">${ax.score}</div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:0%;background:linear-gradient(90deg,${scoreColor},${scoreColor})" id="bar${i}"></div></div>
+      <div class="axis-body">${formatBody(ax.analysis)}</div>
+    `;
+    axesEl.appendChild(card);
+    setTimeout(()=>{document.getElementById('bar'+i).style.width=ax.score+'%'},100+i*80);
+  });
+
+  // Slops
+  const slopsCard=document.getElementById('slopsCard');
+  const slopsList=document.getElementById('slopsList');
+  if(data.slops&&data.slops.length>0){
+    slopsCard.style.display='block';
+    slopsList.innerHTML='';
+    data.slops.forEach(s=>{
+      const item=document.createElement('div');
+      item.className='slop-item';
+      item.innerHTML=`<span class="slop-tag ${s.severity}">${s.type}</span><span class="slop-text">${s.description}</span>`;
+      slopsList.appendChild(item);
+    });
+  }else{slopsCard.style.display='none'}
+
+  // Raw JSON
+  document.getElementById('rawJson').textContent=JSON.stringify(data,null,2);
+}
+
+function formatBody(text){
+  return (text||'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+}
+
+function animateNumber(id,from,to,duration){
+  const el=document.getElementById(id);
+  const start=performance.now();
+  function step(now){
+    const t=Math.min((now-start)/duration,1);
+    el.textContent=Math.round(from+(to-from)*t);
+    if(t<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ─── Radar Chart ───
+const AXIS_ICONS=['🎯','🏗️','💰','📊','🔥','🛡️','⚡'];
+
+function drawRadar(axes){
+  const canvas=document.getElementById('radar');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  const cx=W/2,cy=H/2;
+  const maxR=Math.min(W,H)/2-50;
+  const N=axes.length;
+  if(N<3)return;
+
+  ctx.clearRect(0,0,W,H);
+
+  // Grid
+  for(let level=1;level<=5;level++){
+    const r=maxR*level/5;
+    ctx.beginPath();
+    for(let i=0;i<N;i++){
+      const ang=-Math.PI/2+i*2*Math.PI/N;
+      const x=cx+Math.cos(ang)*r,y=cy+Math.sin(ang)*r;
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle=level===5?'rgba(255,255,255,.15)':'rgba(255,255,255,.06)';
+    ctx.lineWidth=1;
+    ctx.stroke();
+  }
+
+  // Axes
+  for(let i=0;i<N;i++){
+    const ang=-Math.PI/2+i*2*Math.PI/N;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(ang)*maxR,cy+Math.sin(ang)*maxR);
+    ctx.strokeStyle='rgba(255,255,255,.08)';
+    ctx.stroke();
+  }
+
+  // Data polygon
+  ctx.beginPath();
+  for(let i=0;i<N;i++){
+    const ang=-Math.PI/2+i*2*Math.PI/N;
+    const r=maxR*(axes[i].score/100);
+    const x=cx+Math.cos(ang)*r,y=cy+Math.sin(ang)*r;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle='rgba(124,92,255,.15)';
+  ctx.fill();
+  ctx.strokeStyle='#7c5cff';
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  // Data points
+  for(let i=0;i<N;i++){
+    const ang=-Math.PI/2+i*2*Math.PI/N;
+    const r=maxR*(axes[i].score/100);
+    const x=cx+Math.cos(ang)*r,y=cy+Math.sin(ang)*r;
+    ctx.beginPath();
+    ctx.arc(x,y,4,0,2*Math.PI);
+    ctx.fillStyle='#a78bfa';
+    ctx.fill();
+  }
+
+  // Labels
+  ctx.font='600 12px var(--font),sans-serif';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  for(let i=0;i<N;i++){
+    const ang=-Math.PI/2+i*2*Math.PI/N;
+    const lr=maxR+28;
+    const x=cx+Math.cos(ang)*lr,y=cy+Math.sin(ang)*lr;
+    ctx.fillStyle='rgba(240,240,245,.85)';
+    const label=axes[i].name;
+    ctx.fillText(label,x,y);
+    ctx.fillStyle='rgba(144,144,160,.6)';
+    ctx.font='500 10px var(--font),sans-serif';
+    ctx.fillText(axes[i].score+'/100',x,y+15);
+    ctx.font='600 12px var(--font),sans-serif';
+  }
+}
+</script>
+</body>
+</html>
