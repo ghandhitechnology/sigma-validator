@@ -23,12 +23,3 @@ jobs:
           projectName: sigma-validator
           directory: public
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set DeepSeek API Key
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ACCOUNT_ID: e03fe69b9b4944935b86be2c3ae5b957
-        run: |
-          curl -X POST "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/sigma-validator/deployments" \
-            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-            -H "Content-Type: application/json" || true
