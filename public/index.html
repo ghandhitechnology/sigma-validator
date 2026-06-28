@@ -156,10 +156,12 @@ textarea#idea:focus{outline:none}
 .examples{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .chip{
   padding:7px 14px;font-size:.85rem;color:var(--text-dim);
+  font-family:var(--font);
   background:var(--surface-2);border:1px solid var(--border);
   border-radius:20px;cursor:pointer;transition:all .2s;
 }
 .chip:hover{border-color:var(--accent);color:var(--text)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 /* ─── Results ─── */
 .section-results{padding:20px 0 60px;display:none}
@@ -342,9 +344,9 @@ footer a:hover{border-color:var(--accent)}
         <span class="btn-text">검증 시작</span>
       </button>
       <div class="examples">
-        <span class="chip" onclick="loadExample(0)">AI 식단 추천 앱</span>
-        <span class="chip" onclick="loadExample(1)">Z세대용 중고 거래 플랫폼</span>
-        <span class="chip" onclick="loadExample(2)">병원 예약 간소화 서비스</span>
+        <button type="button" class="chip" onclick="loadExample(0)">AI 식단 추천 앱</button>
+        <button type="button" class="chip" onclick="loadExample(1)">Z세대용 중고 거래 플랫폼</button>
+        <button type="button" class="chip" onclick="loadExample(2)">병원 예약 간소화 서비스</button>
       </div>
     </div>
     <div class="error-msg" id="errMsg"></div>
