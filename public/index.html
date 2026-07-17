@@ -1,372 +1,46 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en" data-locale-selector="root">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SIGMA — Venture Validation Workbench</title>
-<meta name="description" content="A plain, rigorous workbench for testing startup ideas across seven operating axes.">
-<meta name="author" content="Andy Ha">
-<meta property="og:title" content="SIGMA — Venture Validation Workbench">
-<meta property="og:description" content="Seven-axis venture validation. Evidence first. Hype last.">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230b1220'/><text x='50' y='63' font-size='54' text-anchor='middle' fill='%23c8a451'>Σ</text></svg>">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --ink:#111318;
-  --ink-2:#232833;
-  --paper:#f4efe3;
-  --paper-2:#e7ddca;
-  --paper-3:#d8cab1;
-  --navy:#0b1220;
-  --navy-2:#151f31;
-  --brass:#c8a451;
-  --blue:#1d4ed8;
-  --red:#a0261d;
-  --green:#146c43;
-  --amber:#9a5b00;
-  --line:#111318;
-  --muted:#5b5f69;
-  --white:#fffaf0;
-  --mono:"SF Mono","JetBrains Mono","Fira Code",ui-monospace,monospace;
-  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Pretendard","Apple SD Gothic Neo","Segoe UI",sans-serif;
-  --serif:Georgia,"Times New Roman",serif;
-  --ease:cubic-bezier(.22,.8,.22,1);
-}
-html{scroll-behavior:smooth;background:var(--paper)}
-body{
-  min-height:100vh;
-  font-family:var(--sans);
-  color:var(--ink);
-  background:
-    linear-gradient(90deg,rgba(17,19,24,.055) 1px,transparent 1px),
-    linear-gradient(0deg,rgba(17,19,24,.045) 1px,transparent 1px),
-    var(--paper);
-  background-size:32px 32px;
-  letter-spacing:-.015em;
-  line-height:1.55;
-}
-button,textarea,input{font:inherit;color:inherit}
-button{cursor:pointer}
-a{color:inherit;text-decoration:none}
-::selection{background:var(--brass);color:var(--navy)}
-
-.frame{max-width:1320px;margin:0 auto;padding:18px}
-.topbar{
-  position:sticky;top:0;z-index:20;
-  display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
-  background:var(--navy);color:var(--white);
-  border:2px solid var(--line);box-shadow:6px 6px 0 var(--ink);
-  padding:12px 14px;margin-bottom:18px;
-}
-.brand{display:flex;align-items:center;gap:12px;min-width:0}
-.seal{
-  width:38px;height:38px;border:2px solid var(--brass);display:grid;place-items:center;
-  color:var(--brass);font-family:var(--serif);font-size:24px;font-weight:700;
-  animation:sealBreath 7s var(--ease) infinite;
-}
-@keyframes sealBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
-.brand h1{font-family:var(--mono);font-size:16px;letter-spacing:.08em;line-height:1;text-transform:uppercase}
-.brand p{font-family:var(--mono);font-size:10px;color:var(--paper-3);letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
-.navlinks{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
-.navlinks a,.utility button{
-  border:1px solid var(--paper-3);background:var(--navy-2);color:var(--white);
-  padding:8px 10px;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;
-  transition:transform .45s var(--ease),background .45s var(--ease),color .45s var(--ease);
-}
-.navlinks a:hover,.utility button:hover{background:var(--brass);color:var(--navy);transform:translateY(-2px)}
-.utility{display:flex;gap:8px;align-items:center}
-.clock{font-family:var(--mono);font-size:12px;color:var(--brass);min-width:82px;text-align:right}
-
-.hero{
-  display:grid;grid-template-columns:minmax(0,1.1fr) 390px;gap:18px;margin-bottom:18px;
-}
-.declaration,.ledger-card,.input-panel,.result-panel,.protocol,.history-panel,.axis-panel,.slop-panel,.json-panel{
-  border:2px solid var(--line);background:var(--white);box-shadow:6px 6px 0 var(--ink);
-}
-.declaration{padding:34px;position:relative;overflow:hidden;background:var(--paper)}
-.declaration::after{
-  content:"";position:absolute;left:0;right:0;bottom:0;height:7px;background:var(--brass);
-  transform-origin:left;animation:longScan 8s var(--ease) infinite;
-}
-@keyframes longScan{0%{transform:scaleX(.08)}45%{transform:scaleX(1)}100%{transform:scaleX(.08)}}
-.kicker{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.18em;color:var(--amber);font-weight:800;margin-bottom:18px}
-.declaration h2{font-family:var(--serif);font-size:clamp(44px,7vw,92px);line-height:.9;letter-spacing:-.065em;max-width:820px}
-.declaration h2 span{display:block;color:var(--navy)}
-.thesis{margin-top:22px;max-width:760px;font-size:18px;color:var(--ink-2)}
-.thesis strong{background:var(--navy);color:var(--white);padding:2px 6px;font-weight:700}
-.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
-.primary,.secondary,.danger,.small-btn{
-  border:2px solid var(--line);padding:12px 14px;background:var(--white);box-shadow:3px 3px 0 var(--ink);
-  font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;
-  transition:transform .35s var(--ease),box-shadow .35s var(--ease),background .35s var(--ease),color .35s var(--ease);
-}
-.primary{background:var(--navy);color:var(--white)}
-.secondary{background:var(--brass);color:var(--navy)}
-.danger{background:var(--red);color:var(--white)}
-.small-btn{padding:8px 10px;font-size:11px;background:var(--paper)}
-.primary:hover,.secondary:hover,.danger:hover,.small-btn:hover{transform:translate(-1px,-2px);box-shadow:5px 5px 0 var(--ink)}
-
-.ledger-card{background:var(--navy);color:var(--white);padding:0;display:grid;grid-template-rows:auto 1fr}
-.ledger-head{border-bottom:2px solid var(--paper-3);padding:14px 16px;display:flex;justify-content:space-between;gap:12px;align-items:center}
-.ledger-head h3{font-family:var(--mono);font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--brass)}
-.status-pill{border:1px solid var(--green);color:var(--green);background:var(--white);padding:4px 8px;font-family:var(--mono);font-size:10px;text-transform:uppercase;font-weight:800}
-.ledger-grid{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid var(--paper-3)}
-.metric{padding:18px 16px;border-right:2px solid var(--paper-3);min-height:110px}
-.metric:nth-child(even){border-right:0}
-.metric:nth-child(1),.metric:nth-child(2){border-bottom:2px solid var(--paper-3)}
-.metric b{font-family:var(--serif);font-size:44px;line-height:1;color:var(--brass);display:block}
-.metric span{display:block;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--paper-3);margin-top:8px}
-.audit{padding:16px;font-family:var(--mono);font-size:12px;color:var(--paper-2)}
-.audit-row{display:grid;grid-template-columns:82px 1fr;gap:10px;border-bottom:1px solid #384050;padding:8px 0}
-.audit-row:last-child{border-bottom:0}
-.audit-row code{color:var(--brass)}
-
-.workbench{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
-.input-panel{padding:0;background:var(--white)}
-.panel-title{border-bottom:2px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 16px;background:var(--paper-2)}
-.panel-title h3{font-family:var(--mono);font-size:13px;text-transform:uppercase;letter-spacing:.1em}
-.panel-title span{font-family:var(--mono);font-size:11px;color:var(--muted)}
-.editor-wrap{padding:16px}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-textarea#idea{
-  width:100%;min-height:230px;resize:vertical;border:2px solid var(--line);background:var(--paper);padding:16px;
-  font-family:var(--mono);font-size:14px;line-height:1.65;outline:none;box-shadow:inset 3px 3px 0 var(--paper-3);
-}
-textarea#idea:focus{background:var(--white);border-color:var(--blue)}
-.prompt-meta{display:grid;grid-template-columns:repeat(4,1fr);border:2px solid var(--line);border-top:0;margin-bottom:16px}
-.prompt-meta div{padding:10px;border-right:2px solid var(--line);font-family:var(--mono);font-size:11px;background:var(--paper)}
-.prompt-meta div:last-child{border-right:0}
-.prompt-meta b{display:block;font-size:16px;color:var(--navy)}
-.operator-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:14px}
-.evaluate{min-width:210px;position:relative;overflow:hidden}
-.evaluate.loading::after{content:"";position:absolute;inset:0;background:var(--brass);transform-origin:left;animation:submitRail 2.8s var(--ease) infinite;z-index:0}
-.evaluate span{position:relative;z-index:1}
-@keyframes submitRail{0%{transform:scaleX(.04)}55%{transform:scaleX(.96)}100%{transform:scaleX(.04)}}@keyframes shimmer{0%{background-position:200% 0}to{background-position:-200% 0}}@keyframes pulse{0%,100%{opacity:.5}50%{opacity:.85}}.skeleton-light{background:linear-gradient(90deg,var(--paper-2) 25%,var(--paper) 50%,var(--paper-2) 75%);background-size:200% 100%;animation:shimmer 1.3s infinite}.skeleton-dark{background:linear-gradient(90deg,var(--navy-2) 25%,#1e2a42 50%,var(--navy-2) 75%);background-size:200% 100%;animation:shimmer 1.3s infinite}.loading-pulse{animation:pulse 1.8s var(--ease) infinite}.skeleton-ring{width:210px;height:210px;border-radius:50%;border:10px solid var(--navy-2);margin:0 auto 14px;animation:pulse 1.8s var(--ease) infinite}
-.error-msg{display:none;margin-top:14px;border:2px solid var(--red);background:var(--white);color:var(--red);padding:12px;font-family:var(--mono);font-size:12px;font-weight:800}
-
-.protocol{background:var(--paper);padding:0}
-.protocol-list{padding:14px 16px;display:grid;gap:10px}
-.step{display:grid;grid-template-columns:34px 1fr;gap:10px;border:2px solid var(--line);background:var(--white);padding:10px}
-.step b{font-family:var(--mono);font-size:12px;color:var(--brass);background:var(--navy);height:28px;display:grid;place-items:center}
-.step strong{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.08em;display:block}
-.step p{font-size:13px;color:var(--muted);margin-top:2px}
-.shortcuts{border-top:2px solid var(--line);padding:14px 16px;background:var(--navy);color:var(--white)}
-.shortcuts h4{font-family:var(--mono);font-size:12px;color:var(--brass);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
-.key{display:flex;justify-content:space-between;border-bottom:1px solid #384050;padding:7px 0;font-family:var(--mono);font-size:11px;color:var(--paper-2)}
-.key kbd{background:var(--paper);color:var(--navy);padding:2px 6px;border:1px solid var(--brass);font-weight:800}
-
-.results{display:none;margin-top:18px;gap:18px;grid-template-columns:360px minmax(0,1fr)}
-.results.show{display:grid;animation:enter .7s var(--ease) both}
-@keyframes enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.result-panel{background:var(--navy);color:var(--white);padding:0;position:sticky;top:92px}
-.score-block{padding:24px;text-align:center;border-bottom:2px solid var(--paper-3)}
-.score-ring{width:210px;height:210px;margin:0 auto 14px;position:relative}
-.score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.score-ring circle{fill:none;stroke-width:10}
-.score-ring .track{stroke:var(--paper-3)}
-.score-ring .fill{stroke:var(--brass);stroke-linecap:square;transition:stroke-dashoffset 1.4s var(--ease)}
-.score-number{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--serif);font-size:70px;color:var(--brass);line-height:1}
-.verdict{display:inline-block;border:2px solid var(--brass);padding:6px 10px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--brass);margin-bottom:12px}
-.summary{color:var(--paper-2);font-size:14px;text-align:left;margin-top:8px}
-.report-actions{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:2px solid var(--paper-3)}
-.report-actions button{border:0;border-right:2px solid var(--paper-3);padding:12px;background:var(--navy);color:var(--white);font-family:var(--mono);font-size:11px;text-transform:uppercase}
-.report-actions button:last-child{border-right:0}
-.report-actions button:hover{background:var(--brass);color:var(--navy)}.report-actions button:disabled{opacity:.35;cursor:not-allowed;background:var(--navy);color:var(--paper-3)}
-.radar-wrap{padding:20px;background:var(--white);color:var(--ink)}
-.radar-wrap h4{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-canvas#radar{width:100%;max-width:310px;margin:auto;display:block}
-
-.axis-panel{background:var(--white);padding:0}
-.axis-list{display:grid;gap:0}
-.axis-card{border-bottom:2px solid var(--line);display:grid;grid-template-columns:72px 1fr;min-height:128px;transition:background .45s var(--ease),transform .45s var(--ease)}
-.axis-card:last-child{border-bottom:0}
-.axis-card:hover{background:var(--paper);transform:translateX(4px)}
-.axis-score{border-right:2px solid var(--line);display:grid;place-items:center;font-family:var(--serif);font-size:38px;font-weight:700;background:var(--paper)}
-.axis-content{padding:14px 16px}
-.axis-top{display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:8px}
-.axis-top h4{font-family:var(--mono);font-size:13px;text-transform:uppercase;letter-spacing:.07em}
-.axis-top small{font-size:12px;color:var(--muted)}
-.rail{height:10px;border:2px solid var(--line);background:var(--white);margin:10px 0;position:relative;overflow:hidden}
-.rail span{display:block;height:100%;background:var(--navy);width:0;transition:width 1.2s var(--ease)}
-.axis-body{font-size:14px;color:var(--ink-2)}
-
-.slop-panel,.history-panel,.json-panel{margin-top:18px;background:var(--white)}
-.slops-list,.history-list{display:grid}
-.slop-item,.history-item{border-bottom:2px solid var(--line);padding:14px 16px;display:grid;grid-template-columns:110px 1fr;gap:12px}
-.slop-item:last-child,.history-item:last-child{border-bottom:0}
-.tag{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;border:2px solid var(--line);padding:4px 6px;text-align:center;height:max-content;font-weight:800}
-.tag.fatal{background:var(--red);color:var(--white)}.tag.warn{background:var(--amber);color:var(--white)}.tag.minor{background:var(--brass);color:var(--navy)}
-.history-item{grid-template-columns:70px 1fr auto;align-items:center;font-family:var(--mono);font-size:12px;cursor:pointer;background:var(--paper)}
-.history-item:hover{background:var(--brass)}
-.json-panel pre{max-height:440px;overflow:auto;padding:16px;background:var(--navy);color:var(--paper-2);font-family:var(--mono);font-size:12px;line-height:1.55}
-.hidden{display:none!important}
-
-
-.verdict-panel,.evidence-panel,.experiment-panel,.actions-panel{margin-top:18px;border:2px solid var(--line);background:var(--white);box-shadow:6px 6px 0 var(--ink)}
-.verdict-tiles{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:2px solid var(--line)}
-.verdict-tile{padding:16px;border-right:2px solid var(--line);background:var(--paper);min-height:112px;transition:transform .45s var(--ease),background .45s var(--ease)}
-.verdict-tile:last-child{border-right:0}.verdict-tile.active{background:var(--navy);color:var(--white);transform:translateY(-4px)}
-.verdict-tile strong{display:block;font-family:var(--serif);font-size:34px;letter-spacing:-.04em;line-height:1;color:var(--brass)}
-.verdict-tile span{display:block;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-top:8px;color:inherit}
-.verdict-reason{padding:14px 16px;font-size:14px;color:var(--ink-2)}
-.evidence-grid{display:grid;grid-template-columns:1fr 92px 110px 1.35fr}
-.evidence-row{display:contents}.evidence-row>*{border-bottom:2px solid var(--line);border-right:2px solid var(--line);padding:12px;font-size:13px}.evidence-row>*:last-child{border-right:0}.evidence-row:last-child>*{border-bottom:0}
-.evidence-head>*{background:var(--navy);color:var(--white);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
-.badge{font-family:var(--mono);font-size:10px;text-transform:uppercase;border:2px solid var(--line);padding:3px 6px;background:var(--paper);font-weight:800;display:inline-block}.badge.observed{background:var(--green);color:var(--white)}.badge.inferred{background:var(--brass);color:var(--navy)}.badge.guessed{background:var(--red);color:var(--white)}
-.experiment-list,.next-list{display:grid}.experiment-item,.next-item{border-bottom:2px solid var(--line);padding:14px 16px;display:grid;grid-template-columns:34px 1fr;gap:12px;background:var(--paper)}.experiment-item:last-child,.next-item:last-child{border-bottom:0}.experiment-item b,.next-item b{font-family:var(--mono);background:var(--navy);color:var(--brass);height:28px;display:grid;place-items:center}.experiment-item strong,.next-item strong{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.experiment-item p,.next-item p{font-size:13px;color:var(--ink-2);margin-top:3px}
-@media(max-width:720px){.verdict-tiles{grid-template-columns:1fr}.verdict-tile{border-right:0;border-bottom:2px solid var(--line)}.evidence-grid{grid-template-columns:1fr}.evidence-row{display:block}.evidence-row>*{display:block;border-right:0}.evidence-head{display:none}}
-
-
-.command{
-  position:fixed;inset:0;background:rgba(11,18,32,.72);z-index:50;display:none;align-items:flex-start;justify-content:center;padding-top:9vh;
-}
-.command.show{display:flex}
-.command-box{width:min(680px,92vw);border:2px solid var(--line);background:var(--white);box-shadow:10px 10px 0 var(--ink)}
-.command-box input{width:100%;border:0;border-bottom:2px solid var(--line);padding:16px;background:var(--paper);font-family:var(--mono);outline:none}
-.command-row{padding:14px 16px;border-bottom:2px solid var(--line);display:flex;justify-content:space-between;gap:14px;font-family:var(--mono);font-size:12px;cursor:pointer}
-.command-row:hover{background:var(--brass)}
-.command-row:last-child{border-bottom:0}
-.toast{position:fixed;right:18px;bottom:18px;z-index:60;border:2px solid var(--line);background:var(--navy);color:var(--white);box-shadow:5px 5px 0 var(--ink);padding:12px 14px;font-family:var(--mono);font-size:12px;display:none}
-.toast.show{display:block;animation:enter .45s var(--ease) both}
-
-@media(max-width:980px){.hero,.workbench,.results{grid-template-columns:1fr}.result-panel{position:static}.topbar{grid-template-columns:1fr}.navlinks{justify-content:flex-start}.utility{justify-content:space-between}.prompt-meta{grid-template-columns:1fr 1fr}.declaration h2{font-size:52px}}
-@media(max-width:560px){.frame{padding:10px}.declaration{padding:24px}.declaration h2{font-size:42px}.prompt-meta{grid-template-columns:1fr}.axis-card{grid-template-columns:1fr}.axis-score{border-right:0;border-bottom:2px solid var(--line);padding:10px}.slop-item,.history-item{grid-template-columns:1fr}.hero-actions,.operator-row{display:grid}.primary,.secondary,.danger,.small-btn{width:100%}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>SIGMA — Select language / 언어 선택</title>
+  <meta name="description" content="Choose Korean or English for the SIGMA Venture Validation Workbench. SIGMA 창업 아이디어 검증 워크벤치의 언어를 선택하세요.">
+  <meta name="author" content="Andy Ha">
+  <meta property="og:title" content="SIGMA — Venture Validation Workbench">
+  <meta property="og:description" content="Choose your language. 언어를 선택하세요.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="alternate" hreflang="ko" href="/ko/">
+  <link rel="alternate" hreflang="en" href="/en/">
+  <link rel="alternate" hreflang="x-default" href="/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230b1220'/><text x='50' y='63' font-size='54' text-anchor='middle' fill='%23c8a451'>Σ</text></svg>">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/locale-selector.js"></script>
 </head>
-<body>
-<div class="frame">
-  <nav class="topbar">
-    <div class="brand"><div class="seal">Σ</div><div><h1>SIGMA</h1><p>validation workbench</p></div></div>
-    <div class="navlinks"><a href="#bench">Workbench</a><a href="#results">Report</a><a href="#protocol">Protocol</a><a href="https://github.com/ghandhitechnology/sigma-validator" target="_blank" rel="noreferrer">Source</a></div>
-    <div class="utility"><button id="cmdBtn" type="button">⌘ Menu</button><div class="clock" id="clock">--:-- KST</div></div>
-  </nav>
-
-  <section class="hero">
-    <div class="declaration">
-      <div class="kicker">Hype is inadmissible. Evidence enters first.</div>
-      <h2><span>TEST THE</span><span>VENTURE.</span></h2>
-      <p class="thesis">SIGMA is a plain workbench for founders who would rather be corrected early than applauded late. Paste the idea. Read the ledger. Decide the next true thing.</p>
-      <div class="hero-actions"><button class="primary" id="focusBtn" type="button">Start the record</button><button class="secondary" id="demoBtn" type="button">Load a hard case</button><button class="small-btn" id="copyUrlBtn" type="button">Copy page</button></div>
-    </div>
-    <aside class="ledger-card">
-      <div class="ledger-head"><h3>System Ledger</h3><span class="status-pill">Live</span></div>
-      <div class="ledger-grid">
-        <div class="metric"><b>7</b><span>operating axes</span></div>
-        <div class="metric"><b>3</b><span>slop severities</span></div>
-        <div class="metric"><b id="runCount">0</b><span>local reports</span></div>
-        <div class="metric"><b id="lastScore">—</b><span>last score</span></div>
+<body class="selector-page">
+  <main class="selector-shell" aria-labelledby="selectorTitle">
+    <header class="selector-head">
+      <div class="seal" aria-hidden="true">Σ</div>
+      <div><strong>SIGMA</strong><p>Venture Validation Workbench</p></div>
+    </header>
+    <section class="selector-content">
+      <p class="selector-kicker">Language / 언어</p>
+      <h1 id="selectorTitle">Choose your workbench.<br>워크벤치 언어를 선택하세요.</h1>
+      <p class="selector-intro">Your choice controls the complete interface and evaluation report. 선택한 언어는 전체 화면과 평가 결과에 적용됩니다.</p>
+      <div class="language-grid">
+        <a class="language-card" href="/ko/" data-locale="ko" lang="ko" hreflang="ko">
+          <span class="language-code" aria-hidden="true">가</span>
+          <span><strong>한국어</strong><span>한국어로 계속하기</span></span>
+          <span class="language-arrow" aria-hidden="true">→</span>
+        </a>
+        <a class="language-card" href="/en/" data-locale="en" lang="en" hreflang="en">
+          <span class="language-code" aria-hidden="true">A</span>
+          <span><strong>English</strong><span>Continue in English</span></span>
+          <span class="language-arrow" aria-hidden="true">→</span>
+        </a>
       </div>
-      <div class="audit">
-        <div class="audit-row"><code>observe</code><span>problem, customer, market, constraints</span></div>
-        <div class="audit-row"><code>parse</code><span>convert pitch into seven falsifiable claims</span></div>
-        <div class="audit-row"><code>judge</code><span>score evidence, not ambition</span></div>
-        <div class="audit-row"><code>archive</code><span>store the decision trail locally</span></div>
-      </div>
-    </aside>
-  </section>
-
-  <main class="workbench" id="bench">
-    <section class="input-panel">
-      <div class="panel-title"><h3>Case File</h3><span id="charCount">0 chars</span></div>
-      <div class="editor-wrap">
-        <div class="toolbar"><button class="small-btn sample" data-i="0" type="button">school ops</button><button class="small-btn sample" data-i="1" type="button">creator tool</button><button class="small-btn sample" data-i="2" type="button">healthcare queue</button><button class="small-btn" id="clearBtn" type="button">clear</button></div>
-        <textarea id="idea" placeholder="Write like an operator, not a pitch deck.&#10;&#10;Include: customer, painful moment, current workaround, proposed product, acquisition path, pricing, and why this deserves to exist now."></textarea>
-        <div class="prompt-meta"><div><b id="wordCount">0</b>words</div><div><b id="signalCount">0</b>signals</div><div><b id="riskCount">0</b>risk terms</div><div><b id="readiness">draft</b>readiness</div></div>
-        <div class="operator-row"><button class="primary evaluate" id="btnEval" type="button"><span>Run validation</span></button><button class="secondary" id="saveDraftBtn" type="button">Save draft</button><button class="small-btn" id="exportDraftBtn" type="button">Export text</button></div>
-        <div class="error-msg" id="errMsg"></div>
-      </div>
+      <p class="selector-note">Your preference is stored only in this browser. 이 설정은 현재 브라우저에만 저장됩니다.</p>
     </section>
-
-    <aside class="protocol" id="protocol">
-      <div class="panel-title"><h3>Operating Protocol</h3><span>inspired by skill racks</span></div>
-      <div class="protocol-list">
-        <div class="step"><b>01</b><div><strong>Observe</strong><p>Make the customer's pain specific enough to embarrass a vague founder.</p></div></div>
-        <div class="step"><b>02</b><div><strong>Constrain</strong><p>State distribution, price, build cost, regulation, and who says no.</p></div></div>
-        <div class="step"><b>03</b><div><strong>Evaluate</strong><p>Seven axes, one score, visible weak links.</p></div></div>
-        <div class="step"><b>04</b><div><strong>Advance</strong><p>Choose the next experiment. No motivational fog.</p></div></div>
-      </div>
-      <div class="shortcuts"><h4>Keyboard</h4><div class="key"><span>focus editor</span><kbd>/</kbd></div><div class="key"><span>run validation</span><kbd>⌘↵</kbd></div><div class="key"><span>command menu</span><kbd>⌘K</kbd></div><div class="key"><span>close / clear</span><kbd>Esc</kbd></div></div>
-    </aside>
   </main>
-
-  <section class="results" id="results">
-    <aside class="result-panel">
-      <div class="score-block"><div class="score-ring"><svg viewBox="0 0 220 220"><circle class="track" cx="110" cy="110" r="92"></circle><circle class="fill" id="ringFill" cx="110" cy="110" r="92" stroke-dasharray="578" stroke-dashoffset="578"></circle></svg><div class="score-number" id="scoreVal">—</div></div><div class="verdict" id="verdictBadge">Awaiting judgment</div><p class="summary" id="verdictDesc"></p></div>
-      <div class="report-actions"><button id="copyReportBtn" type="button">Copy report</button><button id="printBtn" type="button">Print</button><button id="shareLinkBtn" type="button" disabled title="Run an evaluation to generate a shareable link">Copy link</button></div>
-      <div class="radar-wrap"><h4>Shape of the case</h4><canvas id="radar" width="340" height="340"></canvas></div>
-    </aside>
-    <section class="axis-panel"><div class="panel-title"><h3>Seven-Axis Ledger</h3><span id="resultTime">not run</span></div><div class="axis-list" id="axes"></div></section>
-  </section>
-
-
-  <section class="verdict-panel hidden" id="decisionPanel"><div class="panel-title"><h3>Kill / Test / Scale</h3><span>decision, not decoration</span></div><div class="verdict-tiles"><div class="verdict-tile" id="killTile"><strong>KILL</strong><span>stop wasting cycles</span></div><div class="verdict-tile" id="testTile"><strong>TEST</strong><span>prove the weak link</span></div><div class="verdict-tile" id="scaleTile"><strong>SCALE</strong><span>earn the next bet</span></div></div><div class="verdict-reason" id="decisionReason">Run a case to receive a decision.</div></section>
-  <section class="evidence-panel hidden" id="evidencePanel"><div class="panel-title"><h3>Evidence Ledger</h3><span>claim → proof burden</span></div><div class="evidence-grid" id="evidenceGrid"></div></section>
-  <section class="experiment-panel hidden" id="experimentPanel"><div class="panel-title"><h3>Experiment Generator</h3><span>cheap tests before code</span></div><div class="experiment-list" id="experimentList"></div></section>
-  <section class="actions-panel hidden" id="actionsPanel"><div class="panel-title"><h3>Next 7 Days</h3><span>operating strip</span></div><div class="next-list" id="nextList"></div></section>
-
-  <section class="slop-panel hidden" id="slopsCard"><div class="panel-title"><h3>Contradictions & Slop</h3><span>where the pitch leaks</span></div><div class="slops-list" id="slopsList"></div></section>
-  <section class="history-panel" id="historyPanel"><div class="panel-title"><h3>Local Archive</h3><span>browser only</span></div><div class="history-list" id="historyList"></div></section>
-  <section class="json-panel hidden" id="jsonPanel"><div class="panel-title"><h3>Raw Record</h3><span>machine-readable audit</span></div><pre id="rawJson"></pre></section>
-</div>
-
-<div class="command" id="command"><div class="command-box"><input id="commandInput" placeholder="Type a command: validate, demo, clear, copy, raw"><div id="commandRows"></div></div></div>
-<div class="toast" id="toast">Copied</div>
-
-<script>
-const $=s=>document.querySelector(s);
-const $$=s=>Array.from(document.querySelectorAll(s));
-const EXAMPLES=[
-`인천과학고 학생을 위한 과제 운영 보조 도구. 리로스쿨에서 과제와 공지를 자동 수집해 마감일, 제출 양식, 담당 교사를 한 화면에 정리한다. 학생은 현재 단톡방과 기억에 의존한다. 월 3000원 개인 구독 또는 학교 단위 계약을 생각한다. 초기 고객은 과학고/자사고 학생이며 배포는 학생회와 학급 대표를 통해 한다.`,
-`짧은 영상 제작자를 위한 원고 검증 워크벤치. 크리에이터가 영상 아이디어를 넣으면 주장, 근거, 컷 구성, 예상 반박을 점검한다. 현재는 감으로 기획하고 조회수가 안 나오면 폐기한다. 월 9달러 구독을 목표로 하며 초기 배포는 X와 디스코드 커뮤니티에서 한다.`,
-`동네 의원 대기열 투명화 서비스. 환자는 병원에 가기 전 예상 대기시간을 보고 예약하거나 방문한다. 병원은 접수 화면에 현재 진료 흐름을 표시한다. 수익은 병원당 월 10만원. 문제는 병원 시스템 연동, 개인정보, 접수 직원의 업무 저항이다.`
-];
-const COMMANDS=[
-  ['validate','Run the current case file',()=>runValidation()],
-  ['demo','Load a hard example',()=>loadExample(0)],
-  ['clear','Clear editor',()=>clearEditor()],
-  ['link','Copy shareable report link',()=>copyShareLink()],
-  ['copy','Copy latest report',()=>copyReport()],
-  ['raw','Toggle raw JSON',()=>$('#jsonPanel').classList.toggle('hidden')],
-  ['memo','Copy founder memo',()=>copyReport()],
-  ['print','Open print dialog',()=>window.print()]
-];
-let lastData=null;
-
-function tick(){const d=new Date();$('#clock').textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit'}).format(d)+' KST'}
-setInterval(tick,1000);tick();
-function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1800)}
-function updateStats(){const v=$('#idea').value;const words=(v.trim().match(/[\w가-힣]+/g)||[]).length;const signals=['고객','가격','월','배포','현재','문제','수익','시장','비용','경쟁','규제','저항'].filter(x=>v.includes(x)).length;const risks=['어렵','문제','저항','규제','경쟁','비용','의존','개인정보','연동','무료'].filter(x=>v.includes(x)).length;$('#charCount').textContent=v.length+' chars';$('#wordCount').textContent=words;$('#signalCount').textContent=signals;$('#riskCount').textContent=risks;$('#readiness').textContent=signals>=5?'filed':signals>=3?'usable':'draft'}
-function loadExample(i){$('#idea').value=EXAMPLES[i];updateStats();$('#idea').focus();toast('Case loaded')}
-function clearEditor(){$('#idea').value='';updateStats();$('#errMsg').style.display='none';$('#idea').focus()}function showResultsSkeleton(){$('#results').classList.add('show');$('.score-block').innerHTML='<div class="skeleton-ring"></div><div class="skeleton-dark" style="width:160px;height:18px;margin:0 auto 8px;border-radius:3px"></div><div class="skeleton-dark" style="width:240px;height:14px;margin:0 auto;border-radius:3px"></div><div class="skeleton-dark" style="width:180px;height:14px;margin:4px auto 0;border-radius:3px"></div>';let ax='';for(let i=0;i<7;i++){ax+='<article class="axis-card"><div class="axis-score skeleton-light loading-pulse">--</div><div class="axis-content"><div class="axis-top"><div><h4>'+String(i+1).padStart(2,'0')+' — <span class="skeleton-light" style="display:inline-block;width:120px;height:14px;vertical-align:middle;border-radius:3px"></span></h4></div></div><div class="rail"><span style="width:0%"></span></div><p class="axis-body"><span class="skeleton-light" style="display:block;width:90%;height:12px;margin-bottom:6px;border-radius:3px"></span><span class="skeleton-light" style="display:block;width:70%;height:12px;border-radius:3px"></span></p></div></article>';}$('#axes').innerHTML=ax;$('#resultTime').textContent='analyzing...';$('#decisionPanel,#evidencePanel,#experimentPanel,#actionsPanel,#slopsCard,#jsonPanel').addClass('hidden');$('#errMsg').style.display='none';$('#results')[0].scrollIntoView({behavior:'smooth',block:'start'})}function showResultsError(msg){$('#results').classList.add('show');$('.score-block').innerHTML='<div style="text-align:center;padding:20px;color:var(--red)"><div style="font-size:48px;margin-bottom:10px">⚠</div><p style="font-family:var(--mono);font-size:13px;margin-bottom:6px">'+escapeHtml(msg)+'</p><p style="color:var(--paper-2);font-size:12px">Check your connection and try again.</p></div>';$('#axes').innerHTML='';$('#resultTime').textContent='error';$('#decisionPanel,#evidencePanel,#experimentPanel,#actionsPanel,#slopsCard,#jsonPanel').addClass('hidden')}
-async function runValidation(){const idea=$('#idea').value.trim();if(idea.length<10){showError('Case file is too short. Add customer, pain, product, price.');return}showResultsSkeleton();const btn=$('#btnEval');btn.classList.add('loading');btn.disabled=true;btn.querySelector('span').textContent='Judging...';try{const res=await fetch('/api/evaluate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea})});const data=await res.json();if(!res.ok||data.error){let msg=data.message||`Server error (${res.status})`;if(data.code==='RATE_LIMITED')msg='Too many requests. Please wait a moment and try again.';if(data.code==='UPSTREAM_TIMEOUT')msg='AI response timed out. Try again — it usually works on the second attempt.';throw new Error(msg)}renderResults(data,idea);saveHistory(data,idea)}catch(e){showError(e.message);showResultsError(e.message)}finally{btn.classList.remove('loading');btn.disabled=false;btn.querySelector('span').textContent='Run validation'}}
-function showError(t){const e=$('#errMsg');e.textContent=t;e.style.display='block'}
-function renderResults(data,idea){lastData={...data,idea,createdAt:new Date().toISOString()};const shareBtn=$('#shareLinkBtn');if(data.reportId){shareBtn.disabled=false;shareBtn.title='Copy shareable report link'}else{shareBtn.disabled=true;shareBtn.title='Share link unavailable (KV storage may not be configured)'};$('#results').classList.add('show');$('#results').scrollIntoView({behavior:'smooth',block:'start'});const score=Number(data.overall_score||0);const circ=2*Math.PI*92;$('#ringFill').setAttribute('stroke-dasharray',circ);$('#ringFill').setAttribute('stroke-dashoffset',circ*(1-score/100));animateNumber($('#scoreVal'),score);$('#lastScore').textContent=score;const [mode]=decisionFor(data);const verdictLabels={scale:'Proceed to evidence',test:'Test further',kill:'Reconsider the case'};$('#verdictBadge').textContent=verdictLabels[mode]||'Awaiting judgment';$('#verdictDesc').textContent=data.summary||'';$('#resultTime').textContent=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',dateStyle:'medium',timeStyle:'short'}).format(new Date());renderAxes(data.axes||[]);renderDecision(data,idea);renderEvidence(data,idea);renderExperiments(data,idea);renderNextActions(data,idea);renderSlops(data.slops||[]);drawRadar(data.axes||[]);$('#rawJson').textContent=JSON.stringify(lastData,null,2);$('#jsonPanel').classList.remove('hidden')}
-function animateNumber(el,to){let start=performance.now();let done=false;function finish(){if(!done){done=true;el.textContent=String(to)}}function f(now){let t=Math.min((now-start)/1000,1);el.textContent=Math.round(to*t);if(t<1)requestAnimationFrame(f);else finish()}requestAnimationFrame(f);setTimeout(finish,1250)}
-
-function axisScore(data,name){const a=(data.axes||[]).find(x=>(x.name||'').includes(name));return Number(a?.score||0)}
-function decisionFor(data){const score=Number(data.overall_score||0);const slops=(data.slops||[]).length;const demand=axisScore(data,'문제');const diff=axisScore(data,'차별');if(score>=72&&demand>=65&&slops<=1)return ['scale','Scale only after one paid proof. The case has enough shape to deserve a larger bet.'];if(score<45||diff<40)return ['kill','Current evidence says this is more likely a feature, copy, or convenience than a company. Change the customer, wedge, or distribution.'];return ['test','Do not build more yet. Prove the weakest claim with one cheap external test.']}
-function renderDecision(data,idea){const [mode,reason]=decisionFor(data);$('#decisionPanel').classList.remove('hidden');['kill','test','scale'].forEach(x=>$('#'+x+'Tile').classList.toggle('active',x===mode));$('#decisionReason').textContent=reason+' What would change this verdict: observed demand, paid intent, or a distribution edge that competitors cannot copy.'}
-function renderEvidence(data,idea){$('#evidencePanel').classList.remove('hidden');const rows=[['Customer pain',axisScore(data,'문제')>=70?'observed':'inferred',axisScore(data,'문제'),'Interview 5 exact users who used an ugly workaround this week.'],['Willingness to pay',axisScore(data,'수익')>=65?'inferred':'guessed',axisScore(data,'수익'),'Ask for money or a letter of intent before building the full product.'],['Competitor gap',axisScore(data,'차별')>=65?'inferred':'guessed',axisScore(data,'차별'),'List 10 alternatives and name the one thing they structurally cannot do.'],['Distribution channel',idea.match(/배포|채널|커뮤니티|영업|파트너/) ? 'inferred':'guessed',axisScore(data,'확장'),'Run one outbound/community post and measure reply rate.'],['Build risk',axisScore(data,'실행')>=70?'observed':'inferred',axisScore(data,'실행'),'Prototype the riskiest integration manually.']];let html='<div class="evidence-row evidence-head"><div>Claim</div><div>Evidence</div><div>Strength</div><div>Next proof step</div></div>';html+=rows.map(r=>`<div class="evidence-row"><div>${escapeHtml(r[0])}</div><div><span class="badge ${r[1]}">${r[1]}</span></div><div>${r[2]}/100</div><div>${escapeHtml(r[3])}</div></div>`).join('');$('#evidenceGrid').innerHTML=html}
-function renderExperiments(data,idea){$('#experimentPanel').classList.remove('hidden');const weak=[...(data.axes||[])].sort((a,b)=>(a.score||0)-(b.score||0)).slice(0,2).map(a=>a.name).join(', ');const tests=[['01','Concierge proof',`Manually deliver the promised outcome for 3 users. Pass if 2 ask to use it again. Weak axis: ${weak}.`],['02','Pricing smoke test','Put the exact price in front of 20 target users. Pass if 3 agree to pay or introduce a buyer.'],['03','Objection interview','Ask 7 users why they would not use this. Record the objection before defending the idea.'],['04','Channel wedge','Post or DM one narrow audience. Pass if reply rate clears 10% without discounts.']];$('#experimentList').innerHTML=tests.map(t=>`<div class="experiment-item"><b>${t[0]}</b><div><strong>${escapeHtml(t[1])}</strong><p>${escapeHtml(t[2])}</p></div></div>`).join('')}
-function renderNextActions(data,idea){$('#actionsPanel').classList.remove('hidden');const [mode]=decisionFor(data);const actions=mode==='kill'?[['1','Rewrite the customer to one desperate niche.'],['2','Delete every claim without proof.'],['3','Find one ugly workaround or abandon the case.']]:mode==='scale'?[['1','Collect one paid commitment.'],['2','Build the smallest repeatable delivery loop.'],['3','Measure activation and repeat use before adding features.']]:[['1','Run the cheapest experiment from the list.'],['2','Interview 5 target users and log exact phrases.'],['3','Return with evidence, not a better pitch.']];$('#nextList').innerHTML=actions.map(a=>`<div class="next-item"><b>${a[0]}</b><div><strong>day ${a[0]}</strong><p>${escapeHtml(a[1])}</p></div></div>`).join('')}
-
-function renderAxes(axes){const box=$('#axes');box.innerHTML='';axes.forEach((a,i)=>{const card=document.createElement('article');card.className='axis-card';card.innerHTML=`<div class="axis-score">${a.score}</div><div class="axis-content"><div class="axis-top"><div><h4>${String(i+1).padStart(2,'0')} — ${escapeHtml(a.name)}</h4><small>${escapeHtml(a.question||'')}</small></div></div><div class="rail"><span style="width:0%"></span></div><p class="axis-body">${escapeHtml(a.analysis||'')}</p></div>`;box.appendChild(card);setTimeout(()=>card.querySelector('.rail span').style.width=(a.score||0)+'%',120+i*80)})}
-function renderSlops(slops){const panel=$('#slopsCard'),list=$('#slopsList');list.innerHTML='';if(!slops.length){panel.classList.add('hidden');return}panel.classList.remove('hidden');slops.forEach(s=>{const row=document.createElement('div');row.className='slop-item';row.innerHTML=`<div class="tag ${escapeHtml(s.severity||'warn')}">${escapeHtml(s.type||'risk')}</div><div>${escapeHtml(s.description||'')}</div>`;list.appendChild(row)})}
-function drawRadar(axes){const c=$('#radar'),ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,R=118,N=axes.length;if(N<3)return;ctx.clearRect(0,0,W,H);ctx.strokeStyle='#111318';ctx.lineWidth=2;for(let l=1;l<=4;l++){ctx.beginPath();for(let i=0;i<N;i++){const a=-Math.PI/2+i*2*Math.PI/N,r=R*l/4,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath();ctx.stroke()}for(let i=0;i<N;i++){const a=-Math.PI/2+i*2*Math.PI/N;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);ctx.stroke()}ctx.beginPath();axes.forEach((ax,i)=>{const a=-Math.PI/2+i*2*Math.PI/N,r=R*(ax.score||0)/100,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.closePath();ctx.fillStyle='#c8a451';ctx.globalAlpha=.25;ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle='#0b1220';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle='#111318';ctx.font='11px SF Mono, monospace';ctx.textAlign='center';axes.forEach((ax,i)=>{const a=-Math.PI/2+i*2*Math.PI/N,x=cx+Math.cos(a)*(R+31),y=cy+Math.sin(a)*(R+31);ctx.fillText(String(ax.score||0),x,y)})}
-function saveHistory(data,idea){const h=JSON.parse(localStorage.getItem('sigmaHistory')||'[]');const [mode]=decisionFor(data);h.unshift({score:data.overall_score,summary:data.summary,idea,at:new Date().toISOString(),verdict:mode,version:1});localStorage.setItem('sigmaHistory',JSON.stringify(h.slice(0,8)));renderHistory()}
-function renderHistory(){const h=JSON.parse(localStorage.getItem('sigmaHistory')||'[]');$('#runCount').textContent=h.length;const list=$('#historyList');list.innerHTML=h.length?'':'<div class="history-item"><span>—</span><span>No local records yet.</span><span></span></div>';h.forEach((x,i)=>{const row=document.createElement('div');row.className='history-item';const v=x.verdict||'test';const vc=v==='scale'?'var(--green)':v==='kill'?'var(--red)':'var(--amber)';row.innerHTML=`<b style="color:${vc}">${x.score}</b><span>${escapeHtml((x.idea||'').slice(0,80))}</span><time>${new Date(x.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</time>`;row.onclick=()=>{$('#idea').value=x.idea;updateStats();toast('Archive restored')};list.appendChild(row)})}
-async function copyReport(){if(!lastData){toast('No report yet');return}const [mode,reason]=decisionFor(lastData);const text=`SIGMA FOUNDER MEMO\n\nVerdict: ${mode.toUpperCase()}\nReason: ${reason}\nScore: ${lastData.overall_score}/100\nSummary: ${lastData.summary}\n\nSeven-axis breakdown:\n${(lastData.axes||[]).map(a=>`- ${a.name}: ${a.score}/100 — ${a.analysis}`).join('\n')}\n\nContradictions / Slop:\n${(lastData.slops||[]).map(s=>`- ${s.type} [${s.severity}]: ${s.description}`).join('\n')||'None'}\n\nNext 7 days:\n- Run one cheap external experiment.\n- Interview five exact users.\n- Return with evidence, not a cleaner pitch.`;await navigator.clipboard.writeText(text);toast('Founder memo copied')}async function copyShareLink(){if(!lastData||!lastData.reportId){toast('No shareable link yet. Run an evaluation first.');return}const url=`${location.origin}/api/evaluate?report=${lastData.reportId}`;await navigator.clipboard.writeText(url);toast('Shareable report link copied')}
-function exportDraft(){const blob=new Blob([$('#idea').value],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sigma-case-file.txt';a.click();URL.revokeObjectURL(a.href)}
-function escapeHtml(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
-function openCommand(){renderCommands('');$('#command').classList.add('show');$('#commandInput').value='';setTimeout(()=>$('#commandInput').focus(),20)}
-function closeCommand(){$('#command').classList.remove('show')}
-function renderCommands(q){const rows=$('#commandRows');rows.innerHTML='';COMMANDS.filter(c=>c[0].includes(q.toLowerCase())||c[1].toLowerCase().includes(q.toLowerCase())).forEach(c=>{const r=document.createElement('div');r.className='command-row';r.innerHTML=`<strong>${c[0]}</strong><span>${c[1]}</span>`;r.onclick=()=>{closeCommand();c[2]()};rows.appendChild(r)})}
-$('#idea').addEventListener('input',updateStats);$('#btnEval').onclick=runValidation;$('#focusBtn').onclick=()=>$('#idea').focus();$('#demoBtn').onclick=()=>loadExample(0);$('#clearBtn').onclick=clearEditor;$('#saveDraftBtn').onclick=()=>{localStorage.setItem('sigmaDraft',$('#idea').value);toast('Draft saved')};$('#exportDraftBtn').onclick=exportDraft;$('#copyReportBtn').onclick=copyReport;$('#shareLinkBtn').onclick=copyShareLink;$('#printBtn').onclick=()=>window.print();$('#copyUrlBtn').onclick=async()=>{await navigator.clipboard.writeText(location.href);toast('URL copied')};$('#cmdBtn').onclick=openCommand;$$('.sample').forEach(b=>b.onclick=()=>loadExample(Number(b.dataset.i)));$('#commandInput').addEventListener('input',e=>renderCommands(e.target.value));$('#command').addEventListener('click',e=>{if(e.target.id==='command')closeCommand()});
-document.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement!==$('#idea')&&document.activeElement!==$('#commandInput')){e.preventDefault();$('#idea').focus()}if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();runValidation()}if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openCommand()}if(e.key==='Escape'){if($('#command').classList.contains('show'))closeCommand();else if(document.activeElement===$('#idea'))$('#idea').blur()}});
-const draft=localStorage.getItem('sigmaDraft');if(draft){$('#idea').value=draft;toast('Draft restored from last session')}updateStats();renderHistory();
-</script>
 </body>
 </html>

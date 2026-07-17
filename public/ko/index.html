@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>SIGMA — 창업 아이디어 검증 워크벤치</title>
+  <meta name="description" content="일곱 가지 운영 축으로 창업 아이디어를 냉정하고 체계적으로 검증하는 워크벤치입니다.">
+  <meta name="author" content="Andy Ha">
+  <meta property="og:title" content="SIGMA — 창업 아이디어 검증 워크벤치">
+  <meta property="og:description" content="일곱 축으로 검증합니다. 근거는 먼저, 과장은 나중에.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="alternate" hreflang="ko" href="/ko/">
+  <link rel="alternate" hreflang="en" href="/en/">
+  <link rel="alternate" hreflang="x-default" href="/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230b1220'/><text x='50' y='63' font-size='54' text-anchor='middle' fill='%23c8a451'>Σ</text></svg>">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/locale-selector.js"></script>
+</head>
+<body>
+<div class="frame">
+  <nav class="topbar" aria-label="주요 메뉴">
+    <div class="brand"><div class="seal" aria-hidden="true">Σ</div><div><h1>SIGMA</h1><p>창업 검증 워크벤치</p></div></div>
+    <div class="navlinks"><a href="#bench">워크벤치</a><a href="#results">보고서</a><a href="#protocol">검증 절차</a><a href="https://github.com/ghandhitechnology/sigma-validator" target="_blank" rel="noreferrer">소스 코드</a></div>
+    <div class="utility">
+      <div class="locale-switch" aria-label="언어"><a href="/ko/" data-locale="ko" lang="ko" hreflang="ko" aria-current="page">한국어</a><a href="/en/" data-locale="en" lang="en" hreflang="en">EN</a></div>
+      <button id="cmdBtn" type="button" aria-haspopup="dialog">⌘ 메뉴</button><div class="clock" id="clock">--:-- KST</div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="declaration">
+      <div class="kicker">과장은 증거가 될 수 없습니다. 근거부터 제시하세요.</div>
+      <h2><span>사업을</span><span>검증하라.</span></h2>
+      <p class="thesis">SIGMA는 늦은 박수보다 이른 지적을 원하는 창업가를 위한 정직한 워크벤치입니다. 아이디어를 입력하고, 평가표를 읽고, 다음에 확인할 단 하나의 진실을 결정하세요.</p>
+      <div class="hero-actions"><button class="primary" id="focusBtn" type="button">검증 시작하기</button><button class="secondary" id="demoBtn" type="button">어려운 사례 불러오기</button><button class="small-btn" id="copyUrlBtn" type="button">페이지 주소 복사</button></div>
+    </div>
+    <aside class="ledger-card">
+      <div class="ledger-head"><h3>시스템 현황</h3><span class="status-pill">가동 중</span></div>
+      <div class="ledger-grid">
+        <div class="metric"><b>7</b><span>평가 축</span></div><div class="metric"><b>3</b><span>위험 심각도</span></div>
+        <div class="metric"><b id="runCount">0</b><span>로컬 보고서</span></div><div class="metric"><b id="lastScore">—</b><span>최근 점수</span></div>
+      </div>
+      <div class="audit">
+        <div class="audit-row"><code>관찰</code><span>문제, 고객, 시장, 제약 조건</span></div><div class="audit-row"><code>해석</code><span>소개 문구를 검증 가능한 일곱 주장으로 변환</span></div>
+        <div class="audit-row"><code>판단</code><span>포부가 아닌 근거를 채점</span></div><div class="audit-row"><code>보관</code><span>의사결정 기록을 브라우저에 저장</span></div>
+      </div>
+    </aside>
+  </section>
+
+  <main class="workbench" id="bench">
+    <section class="input-panel">
+      <div class="panel-title"><h3>아이디어 기록</h3><span id="charCount">0자</span></div>
+      <div class="editor-wrap">
+        <div class="toolbar"><button class="small-btn sample" data-i="0" type="button">학교 운영</button><button class="small-btn sample" data-i="1" type="button">창작자 도구</button><button class="small-btn sample" data-i="2" type="button">병원 대기열</button><button class="small-btn" id="clearBtn" type="button">지우기</button></div>
+        <label class="sr-only" for="idea">검증할 창업 아이디어</label>
+        <textarea id="idea" placeholder="소개 자료가 아니라 운영자처럼 작성하세요.&#10;&#10;고객, 고통이 발생하는 순간, 현재 대안, 제안 제품, 고객 확보 경로, 가격, 그리고 왜 지금 필요한지를 포함하세요."></textarea>
+        <div class="prompt-meta"><div><b id="wordCount">0</b>단어</div><div><b id="signalCount">0</b>근거 신호</div><div><b id="riskCount">0</b>위험 신호</div><div><b id="readiness">초안</b>준비도</div></div>
+        <div class="operator-row"><button class="primary evaluate" id="btnEval" type="button"><span>검증 실행</span></button><button class="secondary" id="saveDraftBtn" type="button">초안 저장</button><button class="small-btn" id="exportDraftBtn" type="button">텍스트 내보내기</button></div>
+        <div class="error-msg" id="errMsg" role="alert"></div>
+      </div>
+    </section>
+
+    <aside class="protocol" id="protocol">
+      <div class="panel-title"><h3>검증 절차</h3><span>운영 기술 체계 기반</span></div>
+      <div class="protocol-list">
+        <div class="step"><b>01</b><div><strong>관찰</strong><p>모호한 창업가가 당황할 정도로 고객의 고통을 구체화합니다.</p></div></div>
+        <div class="step"><b>02</b><div><strong>제약 확인</strong><p>유통, 가격, 개발 비용, 규제, 반대하는 사람을 명시합니다.</p></div></div>
+        <div class="step"><b>03</b><div><strong>평가</strong><p>일곱 축, 하나의 점수, 눈에 보이는 약한 고리를 확인합니다.</p></div></div>
+        <div class="step"><b>04</b><div><strong>전진</strong><p>다음 실험을 선택합니다. 근거 없는 동기부여는 배제합니다.</p></div></div>
+      </div>
+      <div class="shortcuts"><h4>키보드</h4><div class="key"><span>편집기에 포커스</span><kbd>/</kbd></div><div class="key"><span>검증 실행</span><kbd>⌘↵</kbd></div><div class="key"><span>명령 메뉴</span><kbd>⌘K</kbd></div><div class="key"><span>닫기 / 해제</span><kbd>Esc</kbd></div></div>
+    </aside>
+  </main>
+
+  <section class="results" id="results" aria-live="polite">
+    <aside class="result-panel">
+      <div class="score-block" id="scoreBlock"><div class="score-ring"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="track" cx="110" cy="110" r="92"></circle><circle class="fill" id="ringFill" cx="110" cy="110" r="92" stroke-dasharray="578" stroke-dashoffset="578"></circle></svg><div class="score-number" id="scoreVal">—</div></div><div class="verdict" id="verdictBadge">평가 대기 중</div><p class="summary" id="verdictDesc"></p></div>
+      <div class="report-actions"><button id="copyReportBtn" type="button">보고서 복사</button><button id="printBtn" type="button">인쇄</button><button id="shareLinkBtn" type="button" disabled title="공유 링크를 만들려면 먼저 평가를 실행하세요">링크 복사</button></div>
+      <div class="radar-wrap"><h4>아이디어 평가 형태</h4><canvas id="radar" width="340" height="340" aria-label="일곱 축 점수 방사형 차트"></canvas></div>
+    </aside>
+    <section class="axis-panel"><div class="panel-title"><h3>일곱 축 평가표</h3><span id="resultTime">실행 전</span></div><div class="axis-list" id="axes"></div></section>
+  </section>
+
+  <section class="verdict-panel hidden" id="decisionPanel"><div class="panel-title"><h3>중단 / 검증 / 확장</h3><span>장식이 아닌 결정</span></div><div class="verdict-tiles"><div class="verdict-tile" id="killTile"><strong>중단</strong><span>불필요한 반복을 멈춥니다</span></div><div class="verdict-tile" id="testTile"><strong>검증</strong><span>가장 약한 고리를 입증합니다</span></div><div class="verdict-tile" id="scaleTile"><strong>확장</strong><span>다음 투자를 정당화합니다</span></div></div><div class="verdict-reason" id="decisionReason">아이디어를 실행하면 판단 결과가 표시됩니다.</div></section>
+  <section class="evidence-panel hidden" id="evidencePanel"><div class="panel-title"><h3>근거 평가표</h3><span>주장 → 입증 책임</span></div><div class="evidence-grid" id="evidenceGrid"></div></section>
+  <section class="experiment-panel hidden" id="experimentPanel"><div class="panel-title"><h3>실험 설계</h3><span>개발보다 저렴한 검증</span></div><div class="experiment-list" id="experimentList"></div></section>
+  <section class="actions-panel hidden" id="actionsPanel"><div class="panel-title"><h3>앞으로 7일</h3><span>실행 계획</span></div><div class="next-list" id="nextList"></div></section>
+  <section class="slop-panel hidden" id="slopsCard"><div class="panel-title"><h3>모순과 과장</h3><span>아이디어의 논리가 새는 곳</span></div><div class="slops-list" id="slopsList"></div></section>
+  <section class="history-panel" id="historyPanel"><div class="panel-title"><h3>로컬 보관함</h3><span>현재 브라우저에만 저장</span></div><div class="history-list" id="historyList"></div></section>
+  <section class="json-panel hidden" id="jsonPanel"><div class="panel-title"><h3>원본 기록</h3><span>기계 판독용 감사 자료</span></div><pre id="rawJson"></pre></section>
+</div>
+
+<div class="command" id="command" role="dialog" aria-modal="true" aria-labelledby="commandInput"><div class="command-box"><input id="commandInput" aria-label="명령" placeholder="명령 입력: 검증, 예시, 지우기, 복사, 원본" autocomplete="off"><div id="commandRows"></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite">복사했습니다</div>
+<script src="/assets/locales/ko.js"></script>
+<script src="/assets/app.js"></script>
+</body>
+</html>

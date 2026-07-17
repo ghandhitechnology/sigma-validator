@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>SIGMA — Venture Validation Workbench</title>
+  <meta name="description" content="A plain, rigorous workbench for testing startup ideas across seven operating axes.">
+  <meta name="author" content="Andy Ha">
+  <meta property="og:title" content="SIGMA — Venture Validation Workbench">
+  <meta property="og:description" content="Seven-axis venture validation. Evidence first. Hype last.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="alternate" hreflang="ko" href="/ko/">
+  <link rel="alternate" hreflang="en" href="/en/">
+  <link rel="alternate" hreflang="x-default" href="/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230b1220'/><text x='50' y='63' font-size='54' text-anchor='middle' fill='%23c8a451'>Σ</text></svg>">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/locale-selector.js"></script>
+</head>
+<body>
+<div class="frame">
+  <nav class="topbar" aria-label="Primary navigation">
+    <div class="brand"><div class="seal" aria-hidden="true">Σ</div><div><h1>SIGMA</h1><p>validation workbench</p></div></div>
+    <div class="navlinks"><a href="#bench">Workbench</a><a href="#results">Report</a><a href="#protocol">Protocol</a><a href="https://github.com/ghandhitechnology/sigma-validator" target="_blank" rel="noreferrer">Source</a></div>
+    <div class="utility">
+      <div class="locale-switch" aria-label="Language"><a href="/ko/" data-locale="ko" lang="ko" hreflang="ko">한국어</a><a href="/en/" data-locale="en" lang="en" hreflang="en" aria-current="page">EN</a></div>
+      <button id="cmdBtn" type="button" aria-haspopup="dialog">⌘ Menu</button><div class="clock" id="clock">--:-- KST</div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="declaration">
+      <div class="kicker">Hype is inadmissible. Evidence enters first.</div>
+      <h2><span>TEST THE</span><span>VENTURE.</span></h2>
+      <p class="thesis">SIGMA is a plain workbench for founders who would rather be corrected early than applauded late. Paste the idea. Read the ledger. Decide the next true thing.</p>
+      <div class="hero-actions"><button class="primary" id="focusBtn" type="button">Start the record</button><button class="secondary" id="demoBtn" type="button">Load a hard case</button><button class="small-btn" id="copyUrlBtn" type="button">Copy page</button></div>
+    </div>
+    <aside class="ledger-card">
+      <div class="ledger-head"><h3>System Ledger</h3><span class="status-pill">Live</span></div>
+      <div class="ledger-grid">
+        <div class="metric"><b>7</b><span>operating axes</span></div><div class="metric"><b>3</b><span>slop severities</span></div>
+        <div class="metric"><b id="runCount">0</b><span>local reports</span></div><div class="metric"><b id="lastScore">—</b><span>last score</span></div>
+      </div>
+      <div class="audit">
+        <div class="audit-row"><code>observe</code><span>problem, customer, market, constraints</span></div><div class="audit-row"><code>parse</code><span>convert pitch into seven falsifiable claims</span></div>
+        <div class="audit-row"><code>judge</code><span>score evidence, not ambition</span></div><div class="audit-row"><code>archive</code><span>store the decision trail locally</span></div>
+      </div>
+    </aside>
+  </section>
+
+  <main class="workbench" id="bench">
+    <section class="input-panel">
+      <div class="panel-title"><h3>Case File</h3><span id="charCount">0 characters</span></div>
+      <div class="editor-wrap">
+        <div class="toolbar"><button class="small-btn sample" data-i="0" type="button">school ops</button><button class="small-btn sample" data-i="1" type="button">creator tool</button><button class="small-btn sample" data-i="2" type="button">healthcare queue</button><button class="small-btn" id="clearBtn" type="button">clear</button></div>
+        <label class="sr-only" for="idea">Startup idea case file</label>
+        <textarea id="idea" placeholder="Write like an operator, not a pitch deck.&#10;&#10;Include: customer, painful moment, current workaround, proposed product, acquisition path, pricing, and why this deserves to exist now."></textarea>
+        <div class="prompt-meta"><div><b id="wordCount">0</b>words</div><div><b id="signalCount">0</b>signals</div><div><b id="riskCount">0</b>risk terms</div><div><b id="readiness">draft</b>readiness</div></div>
+        <div class="operator-row"><button class="primary evaluate" id="btnEval" type="button"><span>Run validation</span></button><button class="secondary" id="saveDraftBtn" type="button">Save draft</button><button class="small-btn" id="exportDraftBtn" type="button">Export text</button></div>
+        <div class="error-msg" id="errMsg" role="alert"></div>
+      </div>
+    </section>
+
+    <aside class="protocol" id="protocol">
+      <div class="panel-title"><h3>Operating Protocol</h3><span>inspired by skill racks</span></div>
+      <div class="protocol-list">
+        <div class="step"><b>01</b><div><strong>Observe</strong><p>Make the customer's pain specific enough to embarrass a vague founder.</p></div></div>
+        <div class="step"><b>02</b><div><strong>Constrain</strong><p>State distribution, price, build cost, regulation, and who says no.</p></div></div>
+        <div class="step"><b>03</b><div><strong>Evaluate</strong><p>Seven axes, one score, visible weak links.</p></div></div>
+        <div class="step"><b>04</b><div><strong>Advance</strong><p>Choose the next experiment. No motivational fog.</p></div></div>
+      </div>
+      <div class="shortcuts"><h4>Keyboard</h4><div class="key"><span>focus editor</span><kbd>/</kbd></div><div class="key"><span>run validation</span><kbd>⌘↵</kbd></div><div class="key"><span>command menu</span><kbd>⌘K</kbd></div><div class="key"><span>close / clear</span><kbd>Esc</kbd></div></div>
+    </aside>
+  </main>
+
+  <section class="results" id="results" aria-live="polite">
+    <aside class="result-panel">
+      <div class="score-block" id="scoreBlock"><div class="score-ring"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="track" cx="110" cy="110" r="92"></circle><circle class="fill" id="ringFill" cx="110" cy="110" r="92" stroke-dasharray="578" stroke-dashoffset="578"></circle></svg><div class="score-number" id="scoreVal">—</div></div><div class="verdict" id="verdictBadge">Awaiting judgment</div><p class="summary" id="verdictDesc"></p></div>
+      <div class="report-actions"><button id="copyReportBtn" type="button">Copy report</button><button id="printBtn" type="button">Print</button><button id="shareLinkBtn" type="button" disabled title="Run an evaluation to generate a shareable link">Copy link</button></div>
+      <div class="radar-wrap"><h4>Shape of the case</h4><canvas id="radar" width="340" height="340" aria-label="Seven-axis score radar chart"></canvas></div>
+    </aside>
+    <section class="axis-panel"><div class="panel-title"><h3>Seven-Axis Ledger</h3><span id="resultTime">not run</span></div><div class="axis-list" id="axes"></div></section>
+  </section>
+
+  <section class="verdict-panel hidden" id="decisionPanel"><div class="panel-title"><h3>Kill / Test / Scale</h3><span>decision, not decoration</span></div><div class="verdict-tiles"><div class="verdict-tile" id="killTile"><strong>KILL</strong><span>stop wasting cycles</span></div><div class="verdict-tile" id="testTile"><strong>TEST</strong><span>prove the weak link</span></div><div class="verdict-tile" id="scaleTile"><strong>SCALE</strong><span>earn the next bet</span></div></div><div class="verdict-reason" id="decisionReason">Run a case to receive a decision.</div></section>
+  <section class="evidence-panel hidden" id="evidencePanel"><div class="panel-title"><h3>Evidence Ledger</h3><span>claim → proof burden</span></div><div class="evidence-grid" id="evidenceGrid"></div></section>
+  <section class="experiment-panel hidden" id="experimentPanel"><div class="panel-title"><h3>Experiment Generator</h3><span>cheap tests before code</span></div><div class="experiment-list" id="experimentList"></div></section>
+  <section class="actions-panel hidden" id="actionsPanel"><div class="panel-title"><h3>Next 7 Days</h3><span>operating strip</span></div><div class="next-list" id="nextList"></div></section>
+  <section class="slop-panel hidden" id="slopsCard"><div class="panel-title"><h3>Contradictions &amp; Slop</h3><span>where the pitch leaks</span></div><div class="slops-list" id="slopsList"></div></section>
+  <section class="history-panel" id="historyPanel"><div class="panel-title"><h3>Local Archive</h3><span>browser only</span></div><div class="history-list" id="historyList"></div></section>
+  <section class="json-panel hidden" id="jsonPanel"><div class="panel-title"><h3>Raw Record</h3><span>machine-readable audit</span></div><pre id="rawJson"></pre></section>
+</div>
+
+<div class="command" id="command" role="dialog" aria-modal="true" aria-labelledby="commandInput"><div class="command-box"><input id="commandInput" aria-label="Command" placeholder="Type a command: validate, demo, clear, copy, raw" autocomplete="off"><div id="commandRows"></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite">Copied</div>
+<script src="/assets/locales/en.js"></script>
+<script src="/assets/app.js"></script>
+</body>
+</html>
