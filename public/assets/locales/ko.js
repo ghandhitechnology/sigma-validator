@@ -51,10 +51,10 @@ window.SIGMA_I18N = {
   result: {
     analyzing: '분석 중…',
     error: '오류',
-    runButton: '아이디어 평가하기',
-    loadingButton: '분석 중…',
+    runButton: '평가하기',
+    loadingButton: '평가 중…',
     awaiting: '평가 대기 중',
-    verdictLabels: { scale: '근거 확보 단계로 진행', test: '추가 검증 필요', kill: '아이디어 재검토 필요' },
+    verdictLabels: { scale: '밀어붙여도 좋습니다', test: '더 확인이 필요합니다', kill: '멈추는 편이 낫습니다' },
     shareAvailable: '공유 보고서 링크 복사',
     shareUnavailable: '보고서 저장소가 설정되지 않아 공유 링크를 만들 수 없습니다'
   },

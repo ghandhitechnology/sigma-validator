@@ -4,16 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>SIGMA — Test your startup idea before you build it</title>
-  <meta name="description" content="Paste your startup idea and get an honest score across seven areas investors actually check — plus a kill, test, or scale verdict. Free, no signup.">
+  <meta name="description" content="Write down your startup idea. SIGMA scores it on seven areas, gives you a kill, test, or scale verdict, and names the cheapest thing to prove next.">
   <meta name="author" content="Andy Ha">
   <meta property="og:title" content="SIGMA — Test your startup idea before you build it">
-  <meta property="og:description" content="An honest score across seven areas, and a clear next step. Evidence first.">
+  <meta property="og:description" content="Seven scores, a kill / test / scale verdict, and the cheapest thing to prove next.">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="alternate" hreflang="ko" href="/ko/">
   <link rel="alternate" hreflang="en" href="/en/">
   <link rel="alternate" hreflang="x-default" href="/">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230e1626'/><text x='50' y='64' font-size='54' text-anchor='middle' fill='%23b98a2f'>Σ</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231c1b17'/><text x='50' y='64' font-size='54' text-anchor='middle' fill='%23f2ecda'>Σ</text></svg>">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="/assets/styles.css">
   <script src="/assets/locale-selector.js"></script>
 </head>
@@ -28,9 +29,8 @@
   </nav>
 
   <header class="intro">
-    <p class="kicker">No pitch-deck polish. Just what the evidence shows.</p>
     <h1>Test your idea before you build it.</h1>
-    <p class="lede">SIGMA scores your startup idea across seven areas investors actually check, so you find the weak spot before you spend months building around it.</p>
+    <p class="lede">Write your idea down. SIGMA scores it on the seven things that decide whether it survives, tells you the weakest part, and suggests the cheapest way to prove it.</p>
   </header>
 
   <section class="composer" id="bench">
@@ -39,14 +39,14 @@
       <span id="charCount">0 characters</span>
     </div>
     <div class="samples">
-      <span class="samples-label">Try an example:</span>
+      <span class="samples-label">Examples:</span>
       <button class="chip sample" data-i="0" type="button">School assignments app</button>
       <button class="chip sample" data-i="1" type="button">Creator idea checker</button>
       <button class="chip sample" data-i="2" type="button">Clinic wait times</button>
       <button class="chip" id="clearBtn" type="button">Clear</button>
     </div>
     <label class="sr-only" for="idea">Your startup idea</label>
-    <textarea id="idea" placeholder="Describe your idea in a few sentences.&#10;&#10;Cover: who the customer is, what's painful for them right now, how you'll reach them, what you'll charge, and why now."></textarea>
+    <textarea id="idea" placeholder="Skip the pitch. Write it like you'd actually build it.&#10;&#10;Who has the problem, how they deal with it today, what you'll sell, how they'll hear about it, and what it costs — that's enough."></textarea>
     <div class="composer-meta">
       <span><b id="wordCount">0</b> words</span>
       <span><b id="signalCount">0</b> signals</span>
@@ -55,9 +55,8 @@
     </div>
     <div class="composer-actions">
       <button class="primary evaluate" id="btnEval" type="button"><span>Score my idea</span></button>
-      <button class="ghost" id="demoBtn" type="button">Try an example</button>
+      <button class="ghost" id="demoBtn" type="button">Load an example</button>
     </div>
-    <p class="trust">Free · No signup · Your idea stays in your browser.</p>
     <div class="error-msg" id="errMsg" role="alert"></div>
   </section>
 
@@ -65,10 +64,10 @@
     <div class="how">
       <h3>How it works</h3>
       <ol>
-        <li><div><strong>Describe it plainly</strong><p>Write it the way you'd explain it to a co-founder, not a pitch deck.</p></div></li>
-        <li><div><strong>Get seven scores</strong><p>Problem, solution, revenue, market, differentiation, feasibility, scalability.</p></div></li>
-        <li><div><strong>See the verdict</strong><p>Kill, test, or scale — and the single weakest link to fix first.</p></div></li>
-        <li><div><strong>Run one cheap test</strong><p>Prove the weak spot before you write more code.</p></div></li>
+        <li><div><strong>Write it plainly</strong><p>Polish only blurs the score. Write it as it is.</p></div></li>
+        <li><div><strong>Seven scores</strong><p>Problem, solution, revenue, market, differentiation, feasibility, scalability.</p></div></li>
+        <li><div><strong>The verdict</strong><p>Kill, test, or scale — plus the weakest part to fix first.</p></div></li>
+        <li><div><strong>One next test</strong><p>The cheapest way to prove the weak spot, before you write more code.</p></div></li>
       </ol>
     </div>
     <div class="bands">
@@ -85,29 +84,34 @@
         <div class="score-block" id="scoreBlock"><div class="score-ring"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="track" cx="100" cy="100" r="86"></circle><circle class="fill" id="ringFill" cx="100" cy="100" r="86" stroke-dasharray="540" stroke-dashoffset="540"></circle></svg><div class="score-number" id="scoreVal">—</div></div><div class="verdict" id="verdictBadge">Awaiting your idea</div><p class="summary" id="verdictDesc"></p></div>
         <div class="report-actions"><button id="copyReportBtn" type="button">Copy report</button><button id="printBtn" type="button">Print</button><button id="shareLinkBtn" type="button" disabled title="Run a check to generate a shareable link">Copy link</button></div>
       </aside>
-      <div class="radar-wrap"><h4>Shape of your idea</h4><canvas id="radar" width="340" height="340" aria-label="Seven-area score radar chart"></canvas></div>
+      <div class="radar-wrap"><h4>Area balance</h4><canvas id="radar" width="340" height="340" aria-label="Seven-area score radar chart"></canvas></div>
     </div>
 
-    <section class="panel hidden" id="decisionPanel"><div class="panel-title"><h3>What to do next</h3><span id="resultTimeVerdict"></span></div><div class="verdict-tiles"><div class="verdict-tile" id="killTile"><strong>Kill</strong><span>Stop and rethink</span></div><div class="verdict-tile" id="testTile"><strong>Test</strong><span>Prove the weak link</span></div><div class="verdict-tile" id="scaleTile"><strong>Scale</strong><span>Earn the next bet</span></div></div><div class="verdict-reason" id="decisionReason"></div></section>
+    <section class="panel hidden" id="decisionPanel"><div class="panel-title"><h3>What to do next</h3><span id="resultTimeVerdict"></span></div><div class="verdict-tiles"><div class="verdict-tile" id="killTile"><strong>Kill</strong><span>Stop and rethink</span></div><div class="verdict-tile" id="testTile"><strong>Test</strong><span>Prove the weak part first</span></div><div class="verdict-tile" id="scaleTile"><strong>Scale</strong><span>Move to the next step</span></div></div><div class="verdict-reason" id="decisionReason"></div></section>
 
     <section class="panel" id="axisPanel">
-      <div class="panel-title"><h3>Seven-area breakdown</h3><span id="resultTime">not run yet</span></div>
+      <div class="panel-title"><h3>Breakdown by area</h3><span id="resultTime">not run yet</span></div>
       <div class="axis-legend"><span><b class="k">0–44</b> weak</span><span><b class="t">45–71</b> mixed</span><span><b class="s">72–100</b> strong</span></div>
       <div class="axis-list" id="axes"></div>
     </section>
 
     <section class="panel hidden" id="evidencePanel">
-      <div class="panel-title"><h3>What to prove next</h3><span>observed · inferred · guessed</span></div>
+      <div class="panel-title"><h3>Prove these first</h3><span>observed · inferred · guessed</span></div>
       <div class="evidence-grid" id="evidenceGrid"></div>
-      <div class="weak-spots hidden" id="weakSpots"><h4>Weak spots in the pitch</h4><div class="slops-list" id="slopsList"></div></div>
+      <div class="weak-spots hidden" id="weakSpots"><h4>Where the logic wobbles</h4><div class="slops-list" id="slopsList"></div></div>
     </section>
 
-    <section class="panel hidden" id="experimentPanel"><div class="panel-title"><h3>Cheap tests to try first</h3><span>before you build</span></div><div class="experiment-list" id="experimentList"></div></section>
+    <section class="panel hidden" id="experimentPanel"><div class="panel-title"><h3>Tests you can run now</h3><span>before you build</span></div><div class="experiment-list" id="experimentList"></div></section>
     <section class="panel hidden" id="actionsPanel"><div class="panel-title"><h3>Your next 7 days</h3><span>one step at a time</span></div><div class="next-list" id="nextList"></div></section>
 
-    <details class="fold" id="historyPanel"><summary>Saved on this device <small>· <span id="runCount">0</span> checks · last score <span id="lastScore">—</span></small></summary><div class="history-list" id="historyList"></div></details>
+    <details class="fold" id="historyPanel"><summary>Past checks <small>· <span id="runCount">0</span> saved · last score <span id="lastScore">—</span></small></summary><div class="history-list" id="historyList"></div></details>
     <details class="fold hidden" id="jsonPanel"><summary>Raw data <small>· the full JSON behind this report</small></summary><pre id="rawJson"></pre></details>
   </section>
+
+  <footer class="foot">
+    <span>What you type stays in this browser.</span>
+    <span>SIGMA · made by Andy Ha</span>
+  </footer>
 </div>
 
 <div class="command" id="command" role="dialog" aria-modal="true" aria-labelledby="commandInput"><div class="command-box"><input id="commandInput" aria-label="Command" placeholder="Type a command: score, example, clear, copy, raw" autocomplete="off"><div id="commandRows"></div></div></div>

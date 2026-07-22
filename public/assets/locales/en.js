@@ -21,7 +21,7 @@ window.SIGMA_I18N = {
     readiness: { draft: 'draft', usable: 'usable', filed: 'filed' }
   },
   toast: {
-    caseLoaded: 'Case loaded',
+    caseLoaded: 'Example loaded',
     reportCopied: 'Founder memo copied',
     linkCopied: 'Shareable report link copied',
     noReport: 'No report yet',
@@ -54,7 +54,7 @@ window.SIGMA_I18N = {
     runButton: 'Score my idea',
     loadingButton: 'Scoring…',
     awaiting: 'Awaiting your idea',
-    verdictLabels: { scale: 'Proceed to evidence', test: 'Test further', kill: 'Reconsider the case' },
+    verdictLabels: { scale: 'Good to push', test: 'Needs more proof', kill: 'Better to stop' },
     shareAvailable: 'Copy shareable report link',
     shareUnavailable: 'Share link unavailable (report storage may not be configured)'
   },
