@@ -7,6 +7,8 @@
   const $ = selector => document.querySelector(selector);
   const $$ = selector => Array.from(document.querySelectorAll(selector));
   const AXIS_KEYS = ['problem', 'solution', 'revenue', 'market', 'differentiation', 'feasibility', 'scalability'];
+  const RING_RADIUS = 86;
+  const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
   const SIGNAL_CONCEPTS = [
     ['고객', '사용자', '환자', 'customer', 'customers', 'user', 'users', 'patient'],
     ['가격', '요금', 'price', 'pricing', 'subscription', '구독'],
@@ -34,19 +36,12 @@
     ['무료', 'free', 'unpaid']
   ];
   const DISTRIBUTION_TERMS = /배포|유통|채널|커뮤니티|영업|파트너|distribution|channel|community|sales|partner|outbound/i;
-  const HIDDEN_RESULT_PANELS = '#decisionPanel,#evidencePanel,#experimentPanel,#actionsPanel,#slopsCard,#jsonPanel';
+  const HIDDEN_RESULT_PANELS = '#decisionPanel,#evidencePanel,#experimentPanel,#actionsPanel,#jsonPanel';
 
   let lastData = null;
   let toastTimer = null;
 
   if (window.SigmaLocale) window.SigmaLocale.saveLocale(I18N.locale);
-
-  function tick() {
-    const now = new Date();
-    $('#clock').textContent = new Intl.DateTimeFormat(I18N.dateLocale, {
-      timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit'
-    }).format(now) + ' KST';
-  }
 
   function toast(message) {
     const element = $('#toast');
@@ -72,6 +67,7 @@
     $('#signalCount').textContent = signals;
     $('#riskCount').textContent = risks;
     $('#readiness').textContent = I18N.stats.readiness[readiness];
+    saveDraft(false);
   }
 
   function loadExample(index) {
@@ -89,15 +85,15 @@
   }
 
   function scoreMarkup(verdict = I18N.result.awaiting, summary = '') {
-    return `<div class="score-ring"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="track" cx="110" cy="110" r="92"></circle><circle class="fill" id="ringFill" cx="110" cy="110" r="92" stroke-dasharray="578" stroke-dashoffset="578"></circle></svg><div class="score-number" id="scoreVal">—</div></div><div class="verdict" id="verdictBadge">${escapeHtml(verdict)}</div><p class="summary" id="verdictDesc">${escapeHtml(summary)}</p>`;
+    return `<div class="score-ring"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="track" cx="100" cy="100" r="${RING_RADIUS}"></circle><circle class="fill" id="ringFill" cx="100" cy="100" r="${RING_RADIUS}" stroke-dasharray="${RING_CIRCUMFERENCE}" stroke-dashoffset="${RING_CIRCUMFERENCE}"></circle></svg><div class="score-number" id="scoreVal">—</div></div><div class="verdict" id="verdictBadge">${escapeHtml(verdict)}</div><p class="summary" id="verdictDesc">${escapeHtml(summary)}</p>`;
   }
 
   function showResultsSkeleton() {
     $('#results').classList.add('show');
-    $('#scoreBlock').innerHTML = '<div class="skeleton-ring"></div><div class="skeleton-dark loading-pulse skeleton-verdict"></div><div class="skeleton-dark loading-pulse skeleton-summary"></div><div class="skeleton-dark loading-pulse skeleton-summary-short"></div>';
+    $('#scoreBlock').innerHTML = '<div class="ph ph-ring"></div><div class="ph ph-verdict"></div><div class="ph ph-line"></div><div class="ph ph-line" style="width:55%"></div>';
     let axes = '';
     for (let index = 0; index < 7; index++) {
-      axes += `<article class="axis-card"><div class="axis-score skeleton-light loading-pulse">--</div><div class="axis-content"><div class="axis-top"><div><h4>${String(index + 1).padStart(2, '0')} — <span class="skeleton-light skeleton-axis-title"></span></h4></div></div><div class="rail"><span></span></div><p class="axis-body"><span class="skeleton-light skeleton-line"></span><span class="skeleton-light skeleton-line skeleton-line-short"></span></p></div></article>`;
+      axes += `<article class="axis-card loading"><div class="axis-score">–</div><div class="axis-content"><h4>${String(index + 1).padStart(2, '0')}</h4><div class="rail"><span></span></div><p class="axis-body">·····</p></div></article>`;
     }
     $('#axes').innerHTML = axes;
     $('#resultTime').textContent = I18N.result.analyzing;
@@ -168,9 +164,8 @@
     $('#results').classList.add('show');
     $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
     const score = Number(data.overall_score || 0);
-    const circumference = 2 * Math.PI * 92;
-    $('#ringFill').setAttribute('stroke-dasharray', circumference);
-    $('#ringFill').setAttribute('stroke-dashoffset', circumference * (1 - score / 100));
+    $('#ringFill').setAttribute('stroke-dasharray', RING_CIRCUMFERENCE);
+    $('#ringFill').setAttribute('stroke-dashoffset', RING_CIRCUMFERENCE * (1 - score / 100));
     animateNumber($('#scoreVal'), score);
     $('#lastScore').textContent = score;
 
@@ -202,13 +197,13 @@
       }
     }
     function frame(now) {
-      const progress = Math.min((now - startedAt) / 1000, 1);
+      const progress = Math.min((now - startedAt) / 900, 1);
       element.textContent = Math.round(target * progress);
       if (progress < 1) requestAnimationFrame(frame);
       else finish();
     }
     requestAnimationFrame(frame);
-    setTimeout(finish, 1250);
+    setTimeout(finish, 1150);
   }
 
   function axisScore(data, key) {
@@ -273,26 +268,26 @@
     axes.forEach((axis, index) => {
       const card = document.createElement('article');
       card.className = 'axis-card';
-      card.innerHTML = `<div class="axis-score">${Number(axis.score || 0)}</div><div class="axis-content"><div class="axis-top"><div><h4>${String(index + 1).padStart(2, '0')} — ${escapeHtml(axis.name)}</h4><small>${escapeHtml(axis.question || '')}</small></div></div><div class="rail"><span></span></div><p class="axis-body">${escapeHtml(axis.analysis || '')}</p></div>`;
+      card.innerHTML = `<div class="axis-score">${Number(axis.score || 0)}</div><div class="axis-content"><h4>${String(index + 1).padStart(2, '0')} — ${escapeHtml(axis.name)} <small>${escapeHtml(axis.question || '')}</small></h4><div class="rail"><span></span></div><p class="axis-body">${escapeHtml(axis.analysis || '')}</p></div>`;
       box.appendChild(card);
-      setTimeout(() => { card.querySelector('.rail span').style.width = `${Number(axis.score || 0)}%`; }, 120 + index * 80);
+      setTimeout(() => { card.querySelector('.rail span').style.width = `${Number(axis.score || 0)}%`; }, 100 + index * 70);
     });
   }
 
   function renderSlops(slops) {
-    const panel = $('#slopsCard');
+    const wrap = $('#weakSpots');
     const list = $('#slopsList');
     list.innerHTML = '';
     if (!slops.length) {
-      panel.classList.add('hidden');
+      wrap.classList.add('hidden');
       return;
     }
-    panel.classList.remove('hidden');
+    wrap.classList.remove('hidden');
     slops.forEach(slop => {
       const row = document.createElement('div');
       row.className = 'slop-item';
       const severity = ['fatal', 'warn', 'minor'].includes(slop.severity) ? slop.severity : 'warn';
-      row.innerHTML = `<div class="tag ${severity}">${escapeHtml(slop.type || I18N.slopFallback)}</div><div>${escapeHtml(slop.description || '')}</div>`;
+      row.innerHTML = `<div class="tag ${severity}">${escapeHtml(I18N.memo.severities[severity] || slop.severity)}</div><div>${escapeHtml(slop.description || '')}</div>`;
       list.appendChild(row);
     });
   }
@@ -309,8 +304,8 @@
     context.clearRect(0, 0, width, height);
     if (count < 3) return;
 
-    context.strokeStyle = '#111318';
-    context.lineWidth = 2;
+    context.strokeStyle = '#e5e2da';
+    context.lineWidth = 1;
     for (let level = 1; level <= 4; level++) {
       context.beginPath();
       for (let index = 0; index < count; index++) {
@@ -339,20 +334,18 @@
       index ? context.lineTo(x, y) : context.moveTo(x, y);
     });
     context.closePath();
-    context.fillStyle = '#c8a451';
-    context.globalAlpha = 0.25;
+    context.fillStyle = 'rgba(185,138,47,.18)';
     context.fill();
-    context.globalAlpha = 1;
-    context.strokeStyle = '#0b1220';
-    context.lineWidth = 4;
+    context.strokeStyle = '#0e1626';
+    context.lineWidth = 2;
     context.stroke();
-    context.fillStyle = '#111318';
-    context.font = '11px SF Mono, monospace';
+    context.fillStyle = '#6f6f6f';
+    context.font = '11px -apple-system, sans-serif';
     context.textAlign = 'center';
     axes.forEach((axis, index) => {
       const angle = -Math.PI / 2 + index * 2 * Math.PI / count;
-      const x = centerX + Math.cos(angle) * (radius + 31);
-      const y = centerY + Math.sin(angle) * (radius + 31);
+      const x = centerX + Math.cos(angle) * (radius + 28);
+      const y = centerY + Math.sin(angle) * (radius + 28);
       context.fillText(String(Number(axis.score || 0)), x, y);
     });
   }
@@ -459,23 +452,20 @@
     }
   }
 
-  function exportDraft() {
-    const blob = new Blob([$('#idea').value], { type: 'text/plain;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = I18N.exportFilename;
-    link.click();
-    URL.revokeObjectURL(link.href);
-  }
-
   function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+  }
+
+  function toggleRaw() {
+    const panel = $('#jsonPanel');
+    if (panel.classList.contains('hidden')) return;
+    panel.open = !panel.open;
   }
 
   function commandDefinitions() {
     return [
       ['validate', runValidation], ['demo', () => loadExample(0)], ['clear', clearEditor], ['link', copyShareLink],
-      ['copy', copyReport], ['raw', () => $('#jsonPanel').classList.toggle('hidden')], ['memo', copyReport], ['print', () => window.print()]
+      ['copy', copyReport], ['raw', toggleRaw], ['print', () => window.print()]
     ].map(([key, action]) => ({ key, name: I18N.commands[key][0], description: I18N.commands[key][1], action }));
   }
 
@@ -515,15 +505,11 @@
 
   $('#idea').addEventListener('input', updateStats);
   $('#btnEval').addEventListener('click', runValidation);
-  $('#focusBtn').addEventListener('click', () => $('#idea').focus());
   $('#demoBtn').addEventListener('click', () => loadExample(0));
   $('#clearBtn').addEventListener('click', clearEditor);
-  $('#saveDraftBtn').addEventListener('click', () => saveDraft(true));
-  $('#exportDraftBtn').addEventListener('click', exportDraft);
   $('#copyReportBtn').addEventListener('click', copyReport);
   $('#shareLinkBtn').addEventListener('click', copyShareLink);
   $('#printBtn').addEventListener('click', () => window.print());
-  $('#copyUrlBtn').addEventListener('click', () => copyText(location.href, I18N.toast.urlCopied));
   $('#cmdBtn').addEventListener('click', openCommand);
   $$('.sample').forEach(button => button.addEventListener('click', () => loadExample(Number(button.dataset.i))));
   $$('.locale-switch [data-locale]').forEach(link => link.addEventListener('click', () => saveDraft(false)));
@@ -557,8 +543,6 @@
     }
   } catch { /* Private browsing can disable storage. */ }
 
-  setInterval(tick, 1000);
-  tick();
   updateStats();
   renderHistory();
 })();

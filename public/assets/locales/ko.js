@@ -7,9 +7,9 @@ window.SIGMA_I18N = {
     '동네 의원 대기열 투명화 서비스. 환자는 병원에 가기 전 예상 대기시간을 보고 예약하거나 방문한다. 병원은 접수 화면에 현재 진료 흐름을 표시한다. 수익은 병원당 월 10만원이다. 병원 시스템 연동, 개인정보 보호, 접수 직원의 업무 저항이 주요 위험이다.'
   ],
   commands: {
-    validate: ['검증', '현재 아이디어를 검증합니다'],
-    demo: ['예시', '어려운 예시를 불러옵니다'],
-    clear: ['지우기', '편집기 내용을 지웁니다'],
+    validate: ['평가하기', '작성한 아이디어를 평가합니다'],
+    demo: ['예시', '예시 아이디어를 불러옵니다'],
+    clear: ['지우기', '입력 내용을 지웁니다'],
     link: ['링크', '공유 가능한 보고서 링크를 복사합니다'],
     copy: ['복사', '최근 보고서를 복사합니다'],
     raw: ['원본', '원본 JSON 표시를 전환합니다'],
@@ -33,7 +33,7 @@ window.SIGMA_I18N = {
     copyFailed: '복사하지 못했습니다. 브라우저 권한을 확인하세요.'
   },
   validation: {
-    tooShort: '아이디어가 너무 짧습니다. 고객, 문제, 제품, 가격을 추가하세요.',
+    tooShort: '아직 조금 짧아요. 고객, 문제, 제품, 가격을 조금 더 적어주세요.',
     connection: '연결 상태를 확인한 뒤 다시 시도하세요.',
     serverError: status => `서버 오류 (${status})`,
     apiErrors: {
@@ -51,8 +51,8 @@ window.SIGMA_I18N = {
   result: {
     analyzing: '분석 중…',
     error: '오류',
-    runButton: '검증 실행',
-    loadingButton: '판단 중…',
+    runButton: '아이디어 평가하기',
+    loadingButton: '분석 중…',
     awaiting: '평가 대기 중',
     verdictLabels: { scale: '근거 확보 단계로 진행', test: '추가 검증 필요', kill: '아이디어 재검토 필요' },
     shareAvailable: '공유 보고서 링크 복사',
