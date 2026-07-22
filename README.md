@@ -129,7 +129,7 @@ git clone https://github.com/ghandhitechnology/sigma-validator.git
 cd sigma-validator
 ```
 
-Put your key in a local `.dev.vars` file (it's git-ignored — never commit it):
+Put your key in a local `.dev.vars` file (it's git-ignored):
 
 ```dotenv
 DEEPSEEK_API_KEY=your_deepseek_api_key
@@ -259,9 +259,9 @@ Codes: `INVALID_JSON`, `INPUT_TOO_SHORT`, `RATE_LIMITED`, `API_KEY_MISSING`, `UP
 
 **Reliability** — 10 requests per IP per minute (in-memory, resets on cold start — it's a speed bump, not a fortress), 3 retries with backoff on `429`/`5xx`, a 25s timeout per attempt, and a 24-hour cache. Cache, reports, and analytics are all non-blocking; scoring works even if they fail.
 
-**Security** — the DeepSeek key stays server-side, all model and user text is escaped before rendering, and both the API and static pages ship strict CSP + framing/referrer/permissions headers. Note the API allows any origin (`Access-Control-Allow-Origin: *`) — tighten that if you deploy it privately.
+**Security** — the DeepSeek key stays server-side, all model and user text is escaped before rendering, and both the API and static pages ship strict CSP + framing/referrer/permissions headers. The API allows any origin (`Access-Control-Allow-Origin: *`).
 
-**Privacy** — your language, draft, and last 8 reports live only in your browser's `localStorage`. Each evaluation does send the idea text to DeepSeek. With reports on, the first 500 characters + result are stored for 30 days; analytics only ever count totals, never the text. Check the DeepSeek and Cloudflare policies before pasting anything sensitive.
+**Privacy** — your language, draft, and last 8 reports live only in your browser's `localStorage`. Each evaluation does send the idea text to DeepSeek. With reports on, the first 500 characters + result are stored for 30 days; analytics only ever count totals, never the text.
 
 ---
 
