@@ -44,7 +44,9 @@ For every idea you submit, SIGMA returns:
 - **weak spots** — the hidden assumptions, contradictions, and overclaims in the pitch;
 - **what to prove next** — each key claim tagged *observed*, *inferred*, or *guessed*, with a concrete proof step;
 - **four cheap experiments** to run before writing more code;
-- a **7-day action list**, a radar chart, a copy-paste report, raw JSON, and local history.
+- a **next-actions plan** for the verdict you got, a radar chart, a copy-paste report, raw JSON, and local history (last 8 runs per language, kept in your browser).
+
+Keyboard-first, if that's your thing: `/` focuses the editor, `Cmd/Ctrl+Enter` scores the idea, and `Cmd/Ctrl+K` opens a command palette.
 
 <div align="center">
 <img src="docs/screenshot-report.png" alt="SIGMA report: score, verdict, seven-area breakdown, and next steps" width="820">
@@ -240,6 +242,7 @@ Scores an idea. Send the language in the query and the body — the query lets e
 | Request | Returns |
 |---|---|
 | `GET /api/evaluate?report=<id>` | a saved report (if reports are enabled and it hasn't expired) |
+| `GET /api/evaluate?analytics=1` | aggregate counters — total runs, today's runs, average score, errors (if analytics are enabled) |
 | `GET /api/evaluate` | health check — `{ "ok": true, "version": "3.0", "locales": ["ko", "en"] }` |
 
 Errors share one shape, so they're easy to handle:
