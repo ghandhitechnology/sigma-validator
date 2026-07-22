@@ -7,14 +7,14 @@ window.SIGMA_I18N = {
     'A queue-transparency service for neighborhood clinics. Patients see expected wait times before deciding whether to book or visit. Clinics display the current care flow at reception. Revenue is $100 per clinic per month. Key risks are practice-management integrations, patient privacy, and resistance from reception staff.'
   ],
   commands: {
-    validate: ['validate', 'Run the current case file'],
-    demo: ['demo', 'Load a hard example'],
-    clear: ['clear', 'Clear the editor'],
-    link: ['link', 'Copy a shareable report link'],
-    copy: ['copy', 'Copy the latest report'],
-    raw: ['raw', 'Toggle raw JSON'],
-    memo: ['memo', 'Copy the founder memo'],
-    print: ['print', 'Open the print dialog']
+    validate: ['Score my idea', 'Run the idea you wrote'],
+    demo: ['Example', 'Load an example idea'],
+    clear: ['Clear', 'Clear the text'],
+    link: ['Copy link', 'Copy a shareable report link'],
+    copy: ['Copy report', 'Copy the latest report'],
+    raw: ['Raw data', 'Show or hide the raw JSON'],
+    memo: ['Copy report', 'Copy the report as text'],
+    print: ['Print', 'Open the print dialog']
   },
   stats: {
     characters: count => `${count} ${count === 1 ? 'character' : 'characters'}`,
@@ -33,7 +33,7 @@ window.SIGMA_I18N = {
     copyFailed: 'Copy failed. Check browser permissions.'
   },
   validation: {
-    tooShort: 'Case file is too short. Add the customer, pain, product, and price.',
+    tooShort: "That's a bit short. Add the customer, the problem, the product, and the price.",
     connection: 'Check your connection and try again.',
     serverError: status => `Server error (${status})`,
     apiErrors: {
@@ -51,9 +51,9 @@ window.SIGMA_I18N = {
   result: {
     analyzing: 'analyzing…',
     error: 'error',
-    runButton: 'Run validation',
-    loadingButton: 'Judging…',
-    awaiting: 'Awaiting judgment',
+    runButton: 'Score my idea',
+    loadingButton: 'Scoring…',
+    awaiting: 'Awaiting your idea',
     verdictLabels: { scale: 'Proceed to evidence', test: 'Test further', kill: 'Reconsider the case' },
     shareAvailable: 'Copy shareable report link',
     shareUnavailable: 'Share link unavailable (report storage may not be configured)'
