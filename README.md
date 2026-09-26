@@ -11,7 +11,7 @@ Paste an idea. Get an honest read: a score across seven areas, a **kill / test /
 No signup. Works in Korean and English. One static site + one edge function — that's the whole thing.
 
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages-F38020?logo=cloudflare&logoColor=white)](https://pages.cloudflare.com/)
-[![DeepSeek](https://img.shields.io/badge/AI-DeepSeek--Chat-4D6BFE)](https://www.deepseek.com/)
+[![DeepSeek](https://img.shields.io/badge/AI-DeepSeek--V4--Flash-4D6BFE)](https://openrouter.ai/deepseek/deepseek-v4-flash-0731)
 [![No build step](https://img.shields.io/badge/build%20step-none-146C43)](#run-it-locally)
 
 [What you get](#what-you-get) · [How it works](#how-it-works) · [Run it locally](#run-it-locally) · [Project layout](#project-layout) · [API](#api)
@@ -115,14 +115,14 @@ A few things happen along the way:
 
 - **As you type,** the page shows lightweight hints (word count, whether you've mentioned price/customer/channel, a `draft → usable → filed` readiness). These only nudge your input — they never touch the score.
 - **On the server** (a Cloudflare Pages Function), the request is rate-limited, validated (min 10 chars, capped at 3,000), and hashed. If the same idea + language was scored in the last 24 hours, the cached result comes straight back.
-- **On a cache miss,** it calls `deepseek-chat` with a locale-aware prompt, a 25-second timeout, and up to three retries with backoff. The submitted idea is treated as untrusted text — the model is told to analyze it, never to follow instructions inside it.
+- **On a cache miss,** it calls `deepseek/deepseek-v4-flash-0731` via OpenRouter with a locale-aware prompt, a 25-second timeout, and up to three retries with backoff. The submitted idea is treated as untrusted text — the model is told to analyze it, never to follow instructions inside it.
 - **Every area** is keyed by a stable id (`problem`, `revenue`, …), so Korean and English labels never change the decision logic.
 
 ---
 
 ## Run it locally
 
-**You'll need:** Node.js 18+ and a free [DeepSeek API key](https://platform.deepseek.com/). (A Cloudflare account is only needed to deploy.)
+**You'll need:** Node.js 18+ and an [OpenRouter API key](https://openrouter.ai/keys). (A Cloudflare account is only needed to deploy.)
 
 ```bash
 git clone https://github.com/ghandhitechnology/sigma-validator.git
@@ -132,7 +132,7 @@ cd sigma-validator
 Put your key in a local `.dev.vars` file (it's git-ignored):
 
 ```dotenv
-DEEPSEEK_API_KEY=your_deepseek_api_key
+OPENROUTER_API_KEY=your_openrouter_api_key
 ```
 
 Start the dev server:
@@ -176,7 +176,7 @@ No framework, no database, no build step. Two static pages and one edge function
 
 ## Configuration (optional)
 
-The scorer only needs `DEEPSEEK_API_KEY`. Everything else is opt-in via Cloudflare KV — and if a binding is missing, that feature just quietly turns off.
+The scorer only needs `OPENROUTER_API_KEY`. Everything else is opt-in via Cloudflare KV — and if a binding is missing, that feature just quietly turns off.
 
 | Binding | Adds | Kept for |
 |---|---|---|
@@ -198,7 +198,7 @@ preview_id = "<preview-namespace-id>"
 
 ```bash
 npx wrangler login
-npx wrangler pages secret put DEEPSEEK_API_KEY
+npx wrangler pages secret put OPENROUTER_API_KEY
 npx wrangler pages deploy public --project-name sigma-validator
 ```
 
@@ -259,9 +259,9 @@ Codes: `INVALID_JSON`, `INPUT_TOO_SHORT`, `RATE_LIMITED`, `API_KEY_MISSING`, `UP
 
 **Reliability** — 10 requests per IP per minute (in-memory, resets on cold start — it's a speed bump, not a fortress), 3 retries with backoff on `429`/`5xx`, a 25s timeout per attempt, and a 24-hour cache. Cache, reports, and analytics are all non-blocking; scoring works even if they fail.
 
-**Security** — the DeepSeek key stays server-side, all model and user text is escaped before rendering, and both the API and static pages ship strict CSP + framing/referrer/permissions headers. The API allows any origin (`Access-Control-Allow-Origin: *`).
+**Security** — the OpenRouter key stays server-side, all model and user text is escaped before rendering, and both the API and static pages ship strict CSP + framing/referrer/permissions headers. The API allows any origin (`Access-Control-Allow-Origin: *`).
 
-**Privacy** — your language, draft, and last 8 reports live only in your browser's `localStorage`. Each evaluation does send the idea text to DeepSeek. With reports on, the first 500 characters + result are stored for 30 days; analytics only ever count totals, never the text.
+**Privacy** — your language, draft, and last 8 reports live only in your browser's `localStorage`. Each evaluation does send the idea text to OpenRouter, which routes it to DeepSeek. With reports on, the first 500 characters + result are stored for 30 days; analytics only ever count totals, never the text.
 
 ---
 

@@ -1,5 +1,5 @@
 // SIGMA Evaluation API v3.0 — Cloudflare Pages Function
-// Locale-aware, 7-axis startup idea validation via DeepSeek
+// Locale-aware, 7-axis startup idea validation via DeepSeek V4 Flash (OpenRouter)
 
 const SUPPORTED_LOCALES = new Set(['ko', 'en']);
 const DEFAULT_LOCALE = 'ko';
@@ -272,18 +272,23 @@ export async function onRequestPost({ request, env }) {
     } catch { /* Cache miss; continue with evaluation. */ }
   }
 
-  const apiKey = env?.DEEPSEEK_API_KEY;
+  const apiKey = env?.OPENROUTER_API_KEY;
   if (!apiKey) {
     return json({ error: true, code: 'API_KEY_MISSING', message: errorMessage(locale, 'API_KEY_MISSING') }, 500);
   }
 
   let response;
   try {
-    response = await fetchWithRetry('https://api.deepseek.com/chat/completions', {
+    response = await fetchWithRetry('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://sigma-validator.pages.dev',
+        'X-Title': 'SIGMA Validator',
+      },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: 'deepseek/deepseek-v4-flash-0731',
         messages: [
           { role: 'system', content: buildSystemPrompt(locale) },
           { role: 'user', content: locale === 'ko' ? `다음 창업 아이디어를 분석하세요:\n\n${idea}` : `Analyze this venture idea:\n\n${idea}` },
@@ -291,6 +296,7 @@ export async function onRequestPost({ request, env }) {
         temperature: 0.3,
         max_tokens: 2000,
         response_format: { type: 'json_object' },
+        reasoning: { enabled: false },
       }),
     });
   } catch (error) {

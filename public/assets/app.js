@@ -133,7 +133,12 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idea, locale: I18N.locale })
       });
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(response.ok ? I18N.validation.apiErrors.UPSTREAM_ERROR : I18N.validation.serverError(response.status));
+      }
       if (!response.ok || data.error) throw new Error(localizedApiError(data, response.status));
       renderResults(data, idea);
       saveHistory(data, idea);
