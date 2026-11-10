@@ -4,3 +4,21 @@ pages_build_output_dir = "public"
 
 [vars]
 # DEEPSEEK_API_KEY is set via `wrangler pages secret put DEEPSEEK_API_KEY`
+#
+# ALLOWED_ORIGIN (optional): lock the API to a single origin. When set, POST
+# requests are rejected with FORBIDDEN_ORIGIN unless their `Origin` header
+# matches exactly, and Access-Control-Allow-Origin echoes this value instead
+# of "*" on every response (POST, GET, and the OPTIONS preflight). Leave unset
+# to keep the API open to any origin (the default, still fine behind the
+# existing rate limiting).
+# ALLOWED_ORIGIN = "https://your-production-domain.example"
+#
+# SIGMA_CACHE also backs the durable rate limiter (see functions/api/evaluate.js:
+# checkRateLimitKV) — per-IP minute + daily counters — in addition to caching
+# identical evaluations. Bind it like any other KV namespace:
+#
+# [[kv_namespaces]]
+# binding = "SIGMA_CACHE"
+# id = "<production-namespace-id>"
+# preview_id = "<preview-namespace-id>"
+# # repeat for SIGMA_REPORTS and SIGMA_ANALYTICS (both optional, see README)

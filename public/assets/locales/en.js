@@ -91,6 +91,15 @@ window.SIGMA_I18N = {
   },
   history: { empty: 'No local records yet.' },
   slopFallback: 'risk',
+  axisImprove: 'Improve:',
+  glance: {
+    label: 'At a glance',
+    strongest: 'Strongest',
+    weakest: 'Weakest',
+    weakSpots: 'Weak spots',
+    band: 'Band',
+    bands: { weak: 'Weak', mid: 'Mixed', strong: 'Strong' }
+  },
   memo: {
     title: 'SIGMA FOUNDER MEMO',
     verdict: 'Verdict',
@@ -99,7 +108,10 @@ window.SIGMA_I18N = {
     reason: 'Reason',
     score: 'Score',
     summary: 'Summary',
+    glance: 'At a glance',
     axes: 'Seven-axis breakdown',
+    evidence: 'Evidence to prove first',
+    experiments: 'Tests you can run now',
     slops: 'Contradictions / Slop',
     none: 'None',
     next: 'Next 7 days',

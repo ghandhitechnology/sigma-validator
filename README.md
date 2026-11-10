@@ -114,8 +114,8 @@ The split is deliberate: **the AI writes the analysis; the browser applies the r
 A few things happen along the way:
 
 - **As you type,** the page shows lightweight hints (word count, whether you've mentioned price/customer/channel, a `draft → usable → filed` readiness). These only nudge your input — they never touch the score.
-- **On the server** (a Cloudflare Pages Function), the request is rate-limited, validated (min 10 chars, capped at 3,000), and hashed. If the same idea + language was scored in the last 24 hours, the cached result comes straight back.
-- **On a cache miss,** it calls `deepseek-chat` with a locale-aware prompt, a 25-second timeout, and up to three retries with backoff. The submitted idea is treated as untrusted text — the model is told to analyze it, never to follow instructions inside it.
+- **On the server** (a Cloudflare Pages Function), the request body is size-capped, rate-limited, validated (min 10 chars, capped at 3,000, control characters stripped, Unicode-normalized, rejected if mostly non-text garbage), and hashed. If the same idea + language was scored in the last 24 hours, the cached result comes straight back.
+- **On a cache miss,** it calls `deepseek-chat` with a locale-aware prompt, a 25-second timeout, and up to three retries with backoff. The submitted idea is wrapped in `<untrusted_idea>` tags and the model is explicitly told that content inside them is data only, never instructions — an attempt to override the prompt gets flagged back as a weak spot instead of being obeyed.
 - **Every area** is keyed by a stable id (`problem`, `revenue`, …), so Korean and English labels never change the decision logic.
 
 ---
@@ -180,9 +180,11 @@ The scorer only needs `DEEPSEEK_API_KEY`. Everything else is opt-in via Cloudfla
 
 | Binding | Adds | Kept for |
 |---|---|---|
-| `SIGMA_CACHE` | caches identical evaluations | 24 hours |
+| `SIGMA_CACHE` | caches identical evaluations, and backs the durable per-IP rate limiter | 24 hours (cache) / a couple of minutes and days respectively (limiter counters) |
 | `SIGMA_REPORTS` | shareable report links | 30 days |
 | `SIGMA_ANALYTICS` | aggregate run/score/error counters | no expiry |
+
+`ALLOWED_ORIGIN` is an optional plain var (not KV) — set it to lock the API to one origin instead of allowing any (`*`); see the comment in `wrangler.toml`.
 
 Bind them in `wrangler.toml`:
 
@@ -251,15 +253,15 @@ Errors share one shape, so they're easy to handle:
 { "error": true, "code": "INPUT_TOO_SHORT", "message": "…", "retryable": true }
 ```
 
-Codes: `INVALID_JSON`, `INPUT_TOO_SHORT`, `RATE_LIMITED`, `API_KEY_MISSING`, `UPSTREAM_TIMEOUT`, `UPSTREAM_ERROR`, `EMPTY_RESPONSE`, `PARSE_ERROR`, `INVALID_STRUCTURE`, `NOT_FOUND`.
+Codes: `INVALID_JSON`, `INPUT_TOO_SHORT`, `INPUT_GARBAGE`, `PAYLOAD_TOO_LARGE`, `FORBIDDEN_ORIGIN`, `RATE_LIMITED`, `API_KEY_MISSING`, `UPSTREAM_TIMEOUT`, `UPSTREAM_ERROR`, `EMPTY_RESPONSE`, `PARSE_ERROR`, `INVALID_STRUCTURE`, `NOT_FOUND`.
 
 ---
 
 ## Good to know
 
-**Reliability** — 10 requests per IP per minute (in-memory, resets on cold start — it's a speed bump, not a fortress), 3 retries with backoff on `429`/`5xx`, a 25s timeout per attempt, and a 24-hour cache. Cache, reports, and analytics are all non-blocking; scoring works even if they fail.
+**Reliability** — 10 requests per IP per minute and 60 per IP per day. There are two layers: an in-memory check (fast, but resets on cold start) and, when `SIGMA_CACHE` is bound, a KV-backed counter that survives isolate restarts — if KV is unreachable that check fails open rather than blocking legitimate traffic. Request bodies over ~10KB are rejected before JSON parsing even runs. On top of that: 3 retries with backoff on `429`/`5xx`, a 25s timeout per attempt, and a 24-hour cache. Cache, reports, and analytics are all non-blocking; scoring works even if they fail, and nothing is ever cached or saved from an error response — only a fully normalized, successful result.
 
-**Security** — the DeepSeek key stays server-side, all model and user text is escaped before rendering, and both the API and static pages ship strict CSP + framing/referrer/permissions headers. The API allows any origin (`Access-Control-Allow-Origin: *`).
+**Security** — the DeepSeek key stays server-side, all model and user text is escaped before rendering, and both the API and static pages ship strict CSP + framing/referrer/permissions headers. The submitted idea is treated as untrusted input end to end: control characters are stripped, the text is Unicode-normalized, inputs that are mostly non-text garbage are rejected outright, and what's left is wrapped in `<untrusted_idea>` tags with an explicit system-prompt rule that anything inside them is data, never instructions — an override attempt gets reported back as a weak spot, not followed. The model's response is rebuilt field-by-field into a fixed shape (never spread in wholesale), with every string field length-capped, so a hostile or malfunctioning response can't bloat storage or the page. By default the API allows any origin (`Access-Control-Allow-Origin: *`); setting `ALLOWED_ORIGIN` (see `wrangler.toml`) locks it to one origin, validated against the `Origin` header on every `POST`.
 
 **Privacy** — your language, draft, and last 8 reports live only in your browser's `localStorage`. Each evaluation does send the idea text to DeepSeek. With reports on, the first 500 characters + result are stored for 30 days; analytics only ever count totals, never the text.
 

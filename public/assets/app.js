@@ -96,6 +96,7 @@
       axes += `<article class="axis-card loading"><div class="axis-score">–</div><div class="axis-content"><h4>${String(index + 1).padStart(2, '0')}</h4><div class="rail"><span></span></div><p class="axis-body">·····</p></div></article>`;
     }
     $('#axes').innerHTML = axes;
+    $('#glance').classList.add('hidden');
     $('#resultTime').textContent = I18N.result.analyzing;
     $$(HIDDEN_RESULT_PANELS).forEach(panel => panel.classList.add('hidden'));
     $('#errMsg').style.display = 'none';
@@ -106,6 +107,7 @@
     $('#results').classList.add('show');
     $('#scoreBlock').innerHTML = `<div class="result-error"><div aria-hidden="true">⚠</div><p>${escapeHtml(message)}</p><small>${escapeHtml(I18N.validation.connection)}</small></div>`;
     $('#axes').innerHTML = '';
+    $('#glance').classList.add('hidden');
     $('#resultTime').textContent = I18N.result.error;
     $$(HIDDEN_RESULT_PANELS).forEach(panel => panel.classList.add('hidden'));
   }
@@ -176,6 +178,7 @@
       timeZone: 'Asia/Seoul', dateStyle: 'medium', timeStyle: 'short'
     }).format(new Date());
 
+    renderGlance(data);
     renderAxes(data.axes || []);
     renderDecision(data);
     renderEvidence(data, idea);
@@ -230,20 +233,32 @@
     $('#decisionReason').textContent = `${reason} ${I18N.decision.qualifier}`;
   }
 
-  function renderEvidence(data, idea) {
-    $('#evidencePanel').classList.remove('hidden');
+  function evidenceRows(data, idea) {
     const problem = axisScore(data, 'problem');
     const revenue = axisScore(data, 'revenue');
     const differentiation = axisScore(data, 'differentiation');
     const scalability = axisScore(data, 'scalability');
     const feasibility = axisScore(data, 'feasibility');
-    const rows = [
+    return [
       [I18N.evidence.rows[0], problem >= 70 ? 'observed' : 'inferred', problem],
       [I18N.evidence.rows[1], revenue >= 65 ? 'inferred' : 'guessed', revenue],
       [I18N.evidence.rows[2], differentiation >= 65 ? 'inferred' : 'guessed', differentiation],
-      [I18N.evidence.rows[3], DISTRIBUTION_TERMS.test(idea) ? 'inferred' : 'guessed', scalability],
+      [I18N.evidence.rows[3], DISTRIBUTION_TERMS.test(idea || '') ? 'inferred' : 'guessed', scalability],
       [I18N.evidence.rows[4], feasibility >= 70 ? 'observed' : 'inferred', feasibility]
     ];
+  }
+
+  function weakestAxisNames(data, count = 2) {
+    return [...(data.axes || [])]
+      .sort((a, b) => (a.score || 0) - (b.score || 0))
+      .slice(0, count)
+      .map(axis => axis.name)
+      .join(', ');
+  }
+
+  function renderEvidence(data, idea) {
+    $('#evidencePanel').classList.remove('hidden');
+    const rows = evidenceRows(data, idea);
     let html = `<div class="evidence-row evidence-head">${I18N.evidence.headers.map(value => `<div>${escapeHtml(value)}</div>`).join('')}</div>`;
     html += rows.map(([copy, status, score]) => `<div class="evidence-row"><div>${escapeHtml(copy[0])}</div><div><span class="badge ${status}">${escapeHtml(I18N.evidence.statuses[status])}</span></div><div>${score}/100</div><div>${escapeHtml(copy[1])}</div></div>`).join('');
     $('#evidenceGrid').innerHTML = html;
@@ -251,8 +266,35 @@
 
   function renderExperiments(data) {
     $('#experimentPanel').classList.remove('hidden');
-    const weak = [...(data.axes || [])].sort((a, b) => (a.score || 0) - (b.score || 0)).slice(0, 2).map(axis => axis.name).join(', ');
+    const weak = weakestAxisNames(data);
     $('#experimentList').innerHTML = I18N.experiments(weak).map(item => `<div class="experiment-item"><b>${item[0]}</b><div><strong>${escapeHtml(item[1])}</strong><p>${escapeHtml(item[2])}</p></div></div>`).join('');
+  }
+
+  // Compact 'at a glance' strip: strongest axis, weakest axis, weak-spot count
+  // and the overall score band — all derived from data already on screen.
+  function renderGlance(data) {
+    const glanceEl = $('#glance');
+    if (!glanceEl) return;
+    const axes = data.axes || [];
+    if (!axes.length) {
+      glanceEl.classList.add('hidden');
+      return;
+    }
+    const strongest = axes.reduce((best, axis) => (Number(axis.score || 0) > Number(best.score || 0) ? axis : best));
+    const weakest = axes.reduce((worst, axis) => (Number(axis.score || 0) < Number(worst.score || 0) ? axis : worst));
+    const spotCount = (data.slops || []).length;
+    const band = scoreBand(data.overall_score);
+    const copy = I18N.glance;
+    const items = [
+      [copy.strongest, strongest.name, scoreBand(strongest.score)],
+      [copy.weakest, weakest.name, scoreBand(weakest.score)],
+      [copy.weakSpots, String(spotCount), spotCount > 1 ? 'weak' : spotCount === 1 ? 'mid' : 'strong'],
+      [copy.band, copy.bands[band], band]
+    ];
+    glanceEl.classList.remove('hidden');
+    glanceEl.innerHTML = items.map(([label, value, tone]) =>
+      `<div class="glance-item"><span class="glance-label">${escapeHtml(label)}</span><span class="glance-value ${tone}">${escapeHtml(value)}</span></div>`
+    ).join('');
   }
 
   function renderNextActions(data) {
@@ -268,7 +310,10 @@
     axes.forEach((axis, index) => {
       const card = document.createElement('article');
       card.className = 'axis-card';
-      card.innerHTML = `<div class="axis-score">${Number(axis.score || 0)}</div><div class="axis-content"><h4>${String(index + 1).padStart(2, '0')} — ${escapeHtml(axis.name)} <small>${escapeHtml(axis.question || '')}</small></h4><div class="rail"><span></span></div><p class="axis-body">${escapeHtml(axis.analysis || '')}</p></div>`;
+      const band = scoreBand(axis.score);
+      const fix = typeof axis.fix === 'string' ? axis.fix.trim() : '';
+      const fixLine = fix ? `<p class="axis-fix"><b>${escapeHtml(I18N.axisImprove)}</b> ${escapeHtml(fix)}</p>` : '';
+      card.innerHTML = `<div class="axis-score ${band}">${Number(axis.score || 0)}</div><div class="axis-content"><h4>${String(index + 1).padStart(2, '0')} — ${escapeHtml(axis.name)} <small>${escapeHtml(axis.question || '')}</small></h4><div class="rail"><span class="${band}"></span></div><p class="axis-body">${escapeHtml(axis.analysis || '')}</p>${fixLine}</div>`;
       box.appendChild(card);
       setTimeout(() => { card.querySelector('.rail span').style.width = `${Number(axis.score || 0)}%`; }, 100 + index * 70);
     });
@@ -292,61 +337,158 @@
     });
   }
 
+  const RADAR_FONT = '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif';
+
+  function scoreBand(score) {
+    const value = Number(score || 0);
+    return value >= 72 ? 'strong' : value >= 45 ? 'mid' : 'weak';
+  }
+
+  // Reads the live paper/ink palette from CSS custom properties so the canvas
+  // always tracks the stylesheet tokens instead of hard-coded hexes.
+  function radarTokens() {
+    const styles = getComputedStyle(document.documentElement);
+    const read = (name, fallback) => (styles.getPropertyValue(name).trim() || fallback);
+    return {
+      ink: read('--ink', '#1c1b17'),
+      muted: read('--muted', '#7a766b'),
+      faint: read('--faint', '#a8a396'),
+      line: read('--line-2', 'rgba(28,27,23,.18)'),
+      accent: read('--accent', '#8c6d1f'),
+      surface: read('--surface', '#ffffff'),
+      weak: read('--red', '#b23b2e'),
+      mid: read('--amber', '#a06e0b'),
+      strong: read('--green', '#2f7a4e'),
+    };
+  }
+
+  function hexToRgba(hex, alpha) {
+    const match = String(hex).trim().match(/^#?([0-9a-f]{6})$/i);
+    if (!match) return `rgba(140,109,31,${alpha})`;
+    const int = parseInt(match[1], 16);
+    return `rgba(${(int >> 16) & 255},${(int >> 8) & 255},${int & 255},${alpha})`;
+  }
+
+  // Greedy word-wrap to at most two lines so long axis names never spill past
+  // the canvas edge. Assumes ctx.font is already set for measurement.
+  function wrapRadarLabel(context, text, maxWidth) {
+    const words = String(text).split(/\s+/).filter(Boolean);
+    if (!words.length) return [''];
+    if (context.measureText(text).width <= maxWidth) return [text];
+    // Two lines max: fill the first line greedily, drop the rest onto the second.
+    let first = words[0];
+    let index = 1;
+    while (index < words.length && context.measureText(`${first} ${words[index]}`).width <= maxWidth) {
+      first = `${first} ${words[index]}`;
+      index++;
+    }
+    const second = words.slice(index).join(' ');
+    return second ? [first, second] : [first];
+  }
+
   function drawRadar(axes) {
     const canvas = $('#radar');
-    const context = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const radius = 118;
+    if (!canvas) return;
     const count = axes.length;
-    context.clearRect(0, 0, width, height);
+    const parent = canvas.parentElement;
+    const contentWidth = parent ? parent.clientWidth - 40 : 320;
+    const size = Math.max(220, Math.min(360, contentWidth));
+    const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+
+    canvas.style.width = `${size}px`;
+    canvas.style.height = `${size}px`;
+    canvas.width = Math.round(size * dpr);
+    canvas.height = Math.round(size * dpr);
+
+    const context = canvas.getContext('2d');
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    context.clearRect(0, 0, size, size);
     if (count < 3) return;
 
-    context.strokeStyle = '#e5e2da';
+    const tokens = radarTokens();
+    const centerX = size / 2;
+    const centerY = size / 2;
+    const radius = size / 2 - 46;
+    const angleFor = index => -Math.PI / 2 + index * 2 * Math.PI / count;
+
+    // Concentric rings (4 levels) in the faint rule colour.
     context.lineWidth = 1;
+    context.strokeStyle = tokens.line;
     for (let level = 1; level <= 4; level++) {
       context.beginPath();
       for (let index = 0; index < count; index++) {
-        const angle = -Math.PI / 2 + index * 2 * Math.PI / count;
         const levelRadius = radius * level / 4;
-        const x = centerX + Math.cos(angle) * levelRadius;
-        const y = centerY + Math.sin(angle) * levelRadius;
+        const x = centerX + Math.cos(angleFor(index)) * levelRadius;
+        const y = centerY + Math.sin(angleFor(index)) * levelRadius;
         index ? context.lineTo(x, y) : context.moveTo(x, y);
       }
       context.closePath();
       context.stroke();
     }
+
+    // Spokes.
+    context.strokeStyle = hexToRgba(tokens.faint, 0.55);
     for (let index = 0; index < count; index++) {
-      const angle = -Math.PI / 2 + index * 2 * Math.PI / count;
       context.beginPath();
       context.moveTo(centerX, centerY);
-      context.lineTo(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius);
+      context.lineTo(centerX + Math.cos(angleFor(index)) * radius, centerY + Math.sin(angleFor(index)) * radius);
       context.stroke();
     }
-    context.beginPath();
-    axes.forEach((axis, index) => {
-      const angle = -Math.PI / 2 + index * 2 * Math.PI / count;
-      const pointRadius = radius * Number(axis.score || 0) / 100;
-      const x = centerX + Math.cos(angle) * pointRadius;
-      const y = centerY + Math.sin(angle) * pointRadius;
-      index ? context.lineTo(x, y) : context.moveTo(x, y);
+
+    // Score polygon with a warm radial fill gradient.
+    const points = axes.map((axis, index) => {
+      const pointRadius = radius * Math.max(0, Math.min(100, Number(axis.score || 0))) / 100;
+      return { x: centerX + Math.cos(angleFor(index)) * pointRadius, y: centerY + Math.sin(angleFor(index)) * pointRadius };
     });
+    const gradient = context.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+    gradient.addColorStop(0, hexToRgba(tokens.accent, 0.30));
+    gradient.addColorStop(1, hexToRgba(tokens.accent, 0.10));
+    context.beginPath();
+    points.forEach((point, index) => { index ? context.lineTo(point.x, point.y) : context.moveTo(point.x, point.y); });
     context.closePath();
-    context.fillStyle = 'rgba(185,138,47,.18)';
+    context.fillStyle = gradient;
     context.fill();
-    context.strokeStyle = '#0e1626';
+    context.strokeStyle = tokens.accent;
     context.lineWidth = 2;
+    context.lineJoin = 'round';
     context.stroke();
-    context.fillStyle = '#6f6f6f';
-    context.font = '11px -apple-system, sans-serif';
-    context.textAlign = 'center';
+
+    // Vertex dots, ringed in the surface colour so they read as marks.
+    points.forEach(point => {
+      context.beginPath();
+      context.arc(point.x, point.y, 3.2, 0, 2 * Math.PI);
+      context.fillStyle = tokens.accent;
+      context.fill();
+      context.lineWidth = 2;
+      context.strokeStyle = tokens.surface;
+      context.stroke();
+    });
+
+    // Axis labels: localized name (muted) + band-coloured score.
+    const maxLabelWidth = size * 0.32;
+    const lineHeight = 13;
+    context.textBaseline = 'middle';
     axes.forEach((axis, index) => {
-      const angle = -Math.PI / 2 + index * 2 * Math.PI / count;
-      const x = centerX + Math.cos(angle) * (radius + 28);
-      const y = centerY + Math.sin(angle) * (radius + 28);
-      context.fillText(String(Number(axis.score || 0)), x, y);
+      const angle = angleFor(index);
+      const cos = Math.cos(angle);
+      const labelX = centerX + cos * (radius + 20);
+      const labelY = centerY + Math.sin(angle) * (radius + 20);
+      context.textAlign = cos > 0.25 ? 'left' : cos < -0.25 ? 'right' : 'center';
+
+      context.font = `500 11px ${RADAR_FONT}`;
+      const nameLines = wrapRadarLabel(context, axis.name || '', maxLabelWidth);
+      const totalLines = nameLines.length + 1;
+      let textY = labelY - ((totalLines - 1) * lineHeight) / 2;
+
+      context.fillStyle = tokens.muted;
+      nameLines.forEach(line => {
+        context.fillText(line, labelX, textY);
+        textY += lineHeight;
+      });
+
+      context.font = `700 12.5px ${RADAR_FONT}`;
+      context.fillStyle = tokens[scoreBand(axis.score)];
+      context.fillText(String(Number(axis.score || 0)), labelX, textY);
     });
   }
 
@@ -428,10 +570,58 @@
     }
     const [mode, reason] = decisionFor(lastData);
     const memo = I18N.memo;
-    const axes = (lastData.axes || []).map(axis => `- ${axis.name}: ${axis.score}/100 — ${axis.analysis}`).join('\n');
+    const axisList = lastData.axes || [];
+
+    const axes = axisList.map(axis => {
+      const fix = typeof axis.fix === 'string' && axis.fix.trim() ? `\n  ${I18N.axisImprove} ${axis.fix.trim()}` : '';
+      return `- ${axis.name}: ${axis.score}/100 — ${axis.analysis}${fix}`;
+    }).join('\n');
+
+    // At-a-glance line, mirroring the on-screen strip.
+    const strongest = axisList.reduce((best, axis) => (Number(axis.score || 0) > Number(best.score || 0) ? axis : best), axisList[0] || {});
+    const weakest = axisList.reduce((worst, axis) => (Number(axis.score || 0) < Number(worst.score || 0) ? axis : worst), axisList[0] || {});
+    const spotCount = (lastData.slops || []).length;
+    const glance = I18N.glance;
+    const glanceLine = axisList.length
+      ? `${glance.strongest}: ${strongest.name} · ${glance.weakest}: ${weakest.name} · ${glance.weakSpots}: ${spotCount} · ${glance.band}: ${glance.bands[scoreBand(lastData.overall_score)]}`
+      : '';
+
+    const evidence = evidenceRows(lastData, lastData.idea || '')
+      .map(([copy, status, score]) => `- ${copy[0]} [${I18N.evidence.statuses[status]}] ${score}/100 → ${copy[1]}`)
+      .join('\n');
+
+    const experiments = I18N.experiments(weakestAxisNames(lastData))
+      .map(item => `- ${item[1]}: ${item[2]}`)
+      .join('\n');
+
     const slops = (lastData.slops || []).map(slop => `- ${slop.type} [${memo.severities[slop.severity] || slop.severity}]: ${slop.description}`).join('\n') || memo.none;
     const actions = memo.actions.map(action => `- ${action}`).join('\n');
-    const text = `${memo.title}\n\n${memo.verdict}: ${memo.verdictModes[mode]}\n${memo.reason}: ${reason}\n${memo.score}: ${lastData.overall_score}/100\n${memo.summary}: ${lastData.summary}\n\n${memo.axes}:\n${axes}\n\n${memo.slops}:\n${slops}\n\n${memo.next}:\n${actions}`;
+
+    const text = [
+      memo.title,
+      '',
+      `${memo.verdict}: ${memo.verdictModes[mode]}`,
+      `${memo.reason}: ${reason}`,
+      `${memo.score}: ${lastData.overall_score}/100`,
+      `${memo.summary}: ${lastData.summary}`,
+      '',
+      `${memo.glance}: ${glanceLine}`,
+      '',
+      `${memo.axes}:`,
+      axes,
+      '',
+      `${memo.evidence}:`,
+      evidence,
+      '',
+      `${memo.experiments}:`,
+      experiments,
+      '',
+      `${memo.slops}:`,
+      slops,
+      '',
+      `${memo.next}:`,
+      actions
+    ].join('\n');
     await copyText(text, I18N.toast.reportCopied);
   }
 
@@ -515,6 +705,13 @@
   $$('.locale-switch [data-locale]').forEach(link => link.addEventListener('click', () => saveDraft(false)));
   $('#commandInput').addEventListener('input', event => renderCommands(event.target.value));
   $('#command').addEventListener('click', event => { if (event.target.id === 'command') closeCommand(); });
+
+  let radarResizeFrame = 0;
+  window.addEventListener('resize', () => {
+    if (!lastData || !$('#results').classList.contains('show')) return;
+    cancelAnimationFrame(radarResizeFrame);
+    radarResizeFrame = requestAnimationFrame(() => drawRadar(lastData.axes || []));
+  });
 
   document.addEventListener('keydown', event => {
     if (event.key === '/' && document.activeElement !== $('#idea') && document.activeElement !== $('#commandInput')) {
